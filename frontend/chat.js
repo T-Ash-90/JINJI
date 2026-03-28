@@ -44,7 +44,18 @@ function appendMessage(role, text) {
     msgDiv.classList.add('message', role);
 
     if (role === 'bot') {
-        msgDiv.innerHTML = text ? marked.parse(text) : '';
+        // Avatar
+        const avatarDiv = document.createElement('div');
+        avatarDiv.classList.add('avatar');
+        const avatarImg = document.createElement('img');
+        avatarImg.src = 'assets/images/jinji.png';  // Path to avatar image
+        avatarImg.alt = 'Bot Avatar';
+        avatarImg.classList.add('avatar-img');
+        avatarDiv.appendChild(avatarImg);
+
+        // Message content
+        msgDiv.appendChild(avatarDiv);  // Keep avatar visible
+        msgDiv.innerHTML += text ? marked.parse(text) : '';
     } else {
         msgDiv.textContent = text;
     }
