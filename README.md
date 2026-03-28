@@ -1,3 +1,3 @@
-A frontend project for running local LLMs.
+A frontend for running local LLMs.
 
 Under construction...
