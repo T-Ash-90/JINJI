@@ -1,8 +1,13 @@
 __pycache__/
 *.pyc
+*.py[cod]
+*.pyo
 *.desktop
-.DS_Store
-Thumbs.db
 venv/
 .env/
 .venv/
+.vscode/
+.DS_Store
+*.swp
+*.log
+*.bin
