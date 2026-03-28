@@ -2,27 +2,24 @@ let history = [];
 
 async function sendMessage() {
     const input = document.getElementById("input");
-    const message = input.value;
+    const text = input.value.trim();
+    if (!text) return;
 
-    appendMessage("user", message); // render user message
+    appendMessage('user', text);
+    input.value = '';
 
-    const botDiv = appendMessage("bot", ""); // placeholder for streaming
+    const botDiv = appendMessage('bot', '');
 
-    // Send message to backend
     const response = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            message: message,
-            history: history
-        })
+        body: JSON.stringify({ message: text, history: history })
     });
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
-    let fullReply = "";
-
+    let fullReply = '';
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -30,33 +27,74 @@ async function sendMessage() {
         const chunk = decoder.decode(value, { stream: true });
         fullReply += chunk;
 
-        // Render Markdown dynamically while streaming
         botDiv.innerHTML = marked.parse(fullReply);
-        botDiv.querySelectorAll('pre code').forEach((block) => {
+        botDiv.querySelectorAll('pre code').forEach(block => {
             hljs.highlightBlock(block);
+            addCopyButton(block);
         });
     }
 
-    history.push({role: "user", content: message});
-    history.push({role: "assistant", content: fullReply});
-
-    input.value = "";
+    history.push({role: 'user', content: text});
+    history.push({role: 'assistant', content: fullReply});
 }
 
-// Unified function to add messages
 function appendMessage(role, text) {
     const chatBox = document.getElementById('chat-box');
     const msgDiv = document.createElement('div');
-    msgDiv.className = role; // 'user' or 'bot'
+    msgDiv.classList.add('message', role);
 
-    if (role === 'user') {
-        msgDiv.textContent = text;
+    if (role === 'bot') {
+        msgDiv.innerHTML = text ? marked.parse(text) : '';
     } else {
-        // Initially empty, content updated while streaming
-        msgDiv.innerHTML = text ? marked.parse(text) : "";
+        msgDiv.textContent = text;
     }
 
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
     return msgDiv;
 }
+
+function addCopyButton(codeBlock) {
+    if (codeBlock.parentElement.querySelector('.copy-code-btn')) {
+        return;
+    }
+
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy Code';
+    copyButton.classList.add('copy-code-btn');
+
+    copyButton.addEventListener('click', () => {
+        copyCodeToClipboard(codeBlock, copyButton);
+    });
+
+    codeBlock.parentElement.style.position = 'relative';
+    codeBlock.parentElement.appendChild(copyButton);
+}
+
+function copyCodeToClipboard(codeBlock, button) {
+    const range = document.createRange();
+    range.selectNodeContents(codeBlock);
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    if (document.execCommand('copy')) {
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = 'Copy Code';
+        }, 1000);
+    }
+
+    selection.removeAllRanges();
+}
+
+const inputField = document.getElementById("input");
+inputField.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+});
+
+document.getElementById("send-button").addEventListener("click", sendMessage);
