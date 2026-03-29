@@ -90,11 +90,16 @@ body {
   gap: 10px;
 }
 
+/* -------------------------
+   Input Area
+------------------------- */
 #input-container {
   display: flex;
   padding: 10px;
   border-top: 1px solid #eee;
   background-color: #fafafa;
+  gap: 10px;
+  align-items: stretch;
 }
 
 #input {
@@ -108,20 +113,50 @@ body {
   height: 120px;
 }
 
-#send-button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 6px;
-  background-color: #10a37f;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s;
+/* New button column */
+#button-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 110px;
 }
 
-#send-button:hover {
+/* Shared button styles */
+#send-button,
+#stop-button {
+  padding: 10px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Send button */
+#send-button {
+  background-color: #10a37f;
+}
+
+#send-button:hover:enabled {
   background-color: #0d7c63;
+}
+
+/* Stop button */
+#stop-button {
+  background-color: #e74c3c;
+}
+
+#stop-button:hover:enabled {
+  background-color: #c0392b;
+}
+
+/* Disabled state */
+#stop-button:disabled,
+#send-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* -------------------------

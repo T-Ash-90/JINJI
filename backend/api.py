@@ -1,9 +1,8 @@
-from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 import subprocess
-import requests
+import httpx
 import json
 
 router = APIRouter()
@@ -11,36 +10,63 @@ router = APIRouter()
 OLLAMA_URL = "http://localhost:11434/api/chat"
 OLLAMA_CMD = "ollama"
 
+
 class ChatRequest(BaseModel):
     message: str
     history: list = []
-    model: str = "phi4-mini:latest"  # default if not provided
+    model: str = "phi4-mini:latest"
 
-def stream_ollama(messages, model):
-    with requests.post(
-        OLLAMA_URL,
-        json={
-            "model": model,
-            "messages": messages,
-            "stream": True
-        },
-        stream=True
-    ) as r:
-        for line in r.iter_lines():
-            if line:
-                data = json.loads(line.decode("utf-8"))
-                if "message" in data and "content" in data["message"]:
-                    yield data["message"]["content"]
 
+# -------------------------
+# Async Ollama Stream
+# -------------------------
+async def stream_ollama(request: Request, messages, model):
+    async with httpx.AsyncClient(timeout=None) as client:
+        try:
+            async with client.stream(
+                "POST",
+                OLLAMA_URL,
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "stream": True
+                }
+            ) as response:
+
+                async for line in response.aiter_lines():
+                    if await request.is_disconnected():
+                        print("⚠️ Client disconnected — stopping Ollama stream")
+                        break
+
+                    if line:
+                        try:
+                            data = json.loads(line)
+                            if "message" in data and "content" in data["message"]:
+                                yield data["message"]["content"]
+                        except json.JSONDecodeError:
+                            continue
+
+        except httpx.RequestError as e:
+            print("HTTPX error:", str(e))
+
+
+# -------------------------
+# Chat Endpoint
+# -------------------------
 @router.post("/chat")
-def chat(req: ChatRequest):
+async def chat(req: ChatRequest, request: Request):
     messages = req.history + [{"role": "user", "content": req.message}]
     model = req.model
+
     return StreamingResponse(
-        stream_ollama(messages, model),
+        stream_ollama(request, messages, model),
         media_type="text/plain"
     )
 
+
+# -------------------------
+# Models Endpoint
+# -------------------------
 @router.get("/models")
 def list_models():
     try:
