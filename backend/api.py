@@ -14,7 +14,7 @@ OLLAMA_CMD = "ollama"
 class ChatRequest(BaseModel):
     message: str
     history: list = []
-    model: str = "phi4-mini:latest"
+    model: str
 
 
 # -------------------------
@@ -55,11 +55,16 @@ async def stream_ollama(request: Request, messages, model):
 # -------------------------
 @router.post("/chat")
 async def chat(req: ChatRequest, request: Request):
+    if not req.model:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "No model selected"}
+        )
+
     messages = req.history + [{"role": "user", "content": req.message}]
-    model = req.model
 
     return StreamingResponse(
-        stream_ollama(request, messages, model),
+        stream_ollama(request, messages, req.model),
         media_type="text/plain"
     )
 

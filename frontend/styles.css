@@ -13,7 +13,7 @@ body {
 
 #main-container {
   display: flex;
-  width: 1600px;
+  width: 1720px;
   height: 95vh;
   gap: 20px;
 }
@@ -22,7 +22,7 @@ body {
    Sidebar
 ------------------------- */
 #sidebar {
-  width: 220px;
+  width: 180px;
   display: flex;
   flex-direction: column;
   align-items: center;

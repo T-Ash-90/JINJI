@@ -1,51 +1,75 @@
 let history = [];
 let currentController = null;
-
-// Cache DOM elements (cleaner + faster)
-const inputField = document.getElementById("input");
-const sendButton = document.getElementById("send-button");
-const stopButton = document.getElementById("stop-button");
+let inputField;
+let sendButton;
+let stopButton;
+let modelSelector;
 
 /* -------------------------
    UI State Helpers
 ------------------------- */
+function isModelSelected() {
+    const model = modelSelector.value;
+    return model && model.trim() !== "";
+}
+
+function updateSendButtonState() {
+    sendButton.disabled = !isModelSelected() || currentController !== null;
+}
+
 function setGeneratingState(isGenerating) {
-    sendButton.disabled = isGenerating;
     stopButton.disabled = !isGenerating;
+
+    if (isGenerating) {
+        sendButton.disabled = true;
+    } else {
+        updateSendButtonState();
+    }
 }
 
 /* -------------------------
    Load Models
 ------------------------- */
 async function loadModels() {
-    const select = document.getElementById("model-selector");
-
     try {
         const res = await fetch("http://localhost:8000/models");
         const data = await res.json();
-        select.innerHTML = "";
+
+        modelSelector.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- Select a model --";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        modelSelector.appendChild(defaultOption);
+
+        let savedModel = localStorage.getItem("selectedModel");
 
         if (data.status === "ok" && data.models.length > 0) {
             data.models.forEach(model => {
                 const option = document.createElement("option");
                 option.value = model;
                 option.textContent = model;
-                select.appendChild(option);
+
+                if (savedModel === model) {
+                    option.selected = true;
+                }
+
+                modelSelector.appendChild(option);
             });
         } else {
             const option = document.createElement("option");
-            option.textContent =
-                data.status === "no models found"
-                    ? "No models available"
-                    : "Failed to load models";
-            select.appendChild(option);
-
-            if (data.error) console.error("Model load error:", data.error);
+            option.textContent = "No models available";
+            modelSelector.appendChild(option);
         }
+
     } catch (err) {
         console.error("Failed to load models:", err);
-        select.innerHTML = "<option>Failed to load models</option>";
+        modelSelector.innerHTML = "<option>Failed to load models</option>";
     }
+
+    updateSendButtonState();
 }
 
 /* -------------------------
@@ -53,11 +77,14 @@ async function loadModels() {
 ------------------------- */
 async function sendMessage() {
     const text = inputField.value.trim();
-    if (!text || currentController) return; // prevent double send
+    if (!text || currentController) return;
 
-    const model =
-        document.getElementById("model-selector").value ||
-        "phi4-mini:latest";
+    const model = modelSelector.value;
+
+    if (!model) {
+        alert("Please select a model first.");
+        return;
+    }
 
     appendMessage("user", text);
     inputField.value = "";
@@ -99,7 +126,6 @@ async function sendMessage() {
             });
         }
 
-        // Only save if not aborted mid-stream
         if (fullReply.trim()) {
             history.push({ role: "user", content: text });
             history.push({ role: "assistant", content: fullReply });
@@ -195,16 +221,35 @@ function copyCodeToClipboard(codeBlock, button) {
 }
 
 /* -------------------------
-   Events
+   Init
 ------------------------- */
-inputField.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
+window.addEventListener("DOMContentLoaded", () => {
+    inputField = document.getElementById("input");
+    sendButton = document.getElementById("send-button");
+    stopButton = document.getElementById("stop-button");
+    modelSelector = document.getElementById("model-selector");
+
+    const savedModel = localStorage.getItem("selectedModel");
+    if (savedModel) {
+        modelSelector.value = savedModel;
     }
+
+    modelSelector.addEventListener("change", () => {
+        updateSendButtonState();
+        localStorage.setItem("selectedModel", modelSelector.value);
+    });
+
+    inputField.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    sendButton.addEventListener("click", sendMessage);
+    stopButton.addEventListener("click", stopGeneration);
+
+    setGeneratingState(false);
+
+    loadModels();
 });
-
-sendButton.addEventListener("click", sendMessage);
-stopButton.addEventListener("click", stopGeneration);
-
-window.addEventListener("DOMContentLoaded", loadModels);
