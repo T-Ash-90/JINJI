@@ -44,26 +44,32 @@ async function loadModels() {
         defaultOption.selected = true;
         modelSelector.appendChild(defaultOption);
 
-        let savedModel = localStorage.getItem("selectedModel");
+        const savedModel = localStorage.getItem("selectedModel");
 
         if (data.status === "ok" && data.models.length > 0) {
+            let savedModelExists = false;
+
             data.models.forEach(model => {
                 const option = document.createElement("option");
                 option.value = model;
                 option.textContent = model;
 
-                if (savedModel === model) {
+                if (savedModel && savedModel === model) {
                     option.selected = true;
+                    savedModelExists = true;
                 }
 
                 modelSelector.appendChild(option);
             });
+
+            if (!savedModelExists) {
+                localStorage.removeItem("selectedModel");
+            }
         } else {
             const option = document.createElement("option");
             option.textContent = "No models available";
             modelSelector.appendChild(option);
         }
-
     } catch (err) {
         console.error("Failed to load models:", err);
         modelSelector.innerHTML = "<option>Failed to load models</option>";
