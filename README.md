@@ -8,8 +8,41 @@ I’m designed as a locally hosted interface that connects to local LLMs, so you
 ## Features
 
 - Fun browsing experience: A browser-based interactive session.
-- Offline playtime! You can have all the cool toys and gizmos without needing any power supply; everything runs locally!
+- Offline playtime! Everything runs locally!
 - Play with different LLM models that are installed on your machine. Choose a model you'd prefer to use for whatever task you need.
+
+---
+
+## UI Preview
+
+<p align="center">
+  <img src="frontend/assets/images/ui.png" alt="JINJI UI" width="700"/>
+</p>
+
+---
+
+## Tech Stack
+
+- **Frontend:** HTML, CSS, JavaScript
+- **Backend:** Python (FastAPI, Uvicorn)
+- **LLM Runtime:** Ollama
+- **Architecture:** Local-first, offline AI system
+
+---
+
+## Architecture Overview
+
+I run entirely on your local machine:
+
+- The frontend provides a browser-based chat interface
+- The FastAPI backend handles requests and model communication
+- Ollama serves locally installed LLMs
+- No external APIs or internet connection required
+
+This design ensures:
+- Full privacy
+- Low latency
+- Offline usability
 
 ---
 
