@@ -1,9 +1,45 @@
 let history = [];
 
+async function loadModels() {
+    const select = document.getElementById("model-selector");
+    try {
+        const res = await fetch("http://localhost:8000/models");
+        const data = await res.json();
+        select.innerHTML = "";
+
+        if (data.status === "ok" && data.models.length > 0) {
+            data.models.forEach(model => {
+                const option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                select.appendChild(option);
+            });
+        } else if (data.status === "no models found") {
+            const option = document.createElement("option");
+            option.textContent = "No models available";
+            select.appendChild(option);
+        } else {
+            const option = document.createElement("option");
+            option.textContent = "Failed to load models";
+            select.appendChild(option);
+            console.error("Model load error:", data.error);
+        }
+    } catch (err) {
+        console.error("Failed to load models:", err);
+        select.innerHTML = "";
+        const option = document.createElement("option");
+        option.textContent = "Failed to load models";
+        select.appendChild(option);
+    }
+}
+
 async function sendMessage() {
     const input = document.getElementById("input");
     const text = input.value.trim();
     if (!text) return;
+
+    const modelSelect = document.getElementById("model-selector");
+    const model = modelSelect.value || "phi4-mini:latest";  // default if none selected
 
     appendMessage('user', text);
     input.value = '';
@@ -13,7 +49,11 @@ async function sendMessage() {
     const response = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ message: text, history: history })
+        body: JSON.stringify({
+            message: text,
+            history: history,
+            model: model
+        })
     });
 
     const reader = response.body.getReader();
@@ -109,3 +149,7 @@ inputField.addEventListener("keydown", function(event) {
 });
 
 document.getElementById("send-button").addEventListener("click", sendMessage);
+
+window.addEventListener("DOMContentLoaded", () => {
+    loadModels();
+});

@@ -1,4 +1,6 @@
-/* Basic Layout */
+/* -------------------------
+   Basic Layout
+------------------------- */
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
@@ -9,19 +11,70 @@ body {
   height: 100vh;
 }
 
-#logo {
-    position: absolute;
-    top: 40px;
-    left: 40px;
-    width: 120px;
+#main-container {
+  display: flex;
+  width: 1600px;
+  height: 95vh;
+  gap: 20px;
 }
 
-#chat-container {
+/* -------------------------
+   Sidebar
+------------------------- */
+#sidebar {
+  width: 220px;
   display: flex;
   flex-direction: column;
-  width: 1200px;
-  height: 95vh;
+  align-items: center;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+#logo {
+  max-width: 150px;
+  margin-bottom: 20px;
+}
+
+#model-selector-container {
+  width: 100%;
+  text-align: center;
+}
+
+#model-selector-container label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+#model-selector {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#model-selector:hover,
+#model-selector:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+/* -------------------------
+   Chat Container
+------------------------- */
+#chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   border-radius: 10px;
   background-color: white;
   overflow: hidden;
@@ -71,7 +124,9 @@ body {
   background-color: #0d7c63;
 }
 
-/* Message Bubbles */
+/* -------------------------
+   Message Bubbles
+------------------------- */
 .message {
   padding: 12px 16px;
   border-radius: 12px;
@@ -82,29 +137,52 @@ body {
 }
 
 .message pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
+/* User message styling */
 .user {
   align-self: flex-end;
   background-color: #10a37f;
   color: white;
 }
 
+.user .message {
+  display: inline-block;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 80%;
+  white-space: pre-wrap;
+}
+
+/* Bot message styling */
 .bot {
   align-self: flex-start;
-  background-color: #f1f1f1;
-  color: #333;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 10px;
-  flex-wrap: wrap;
   max-width: 80%;
 }
 
-/* Bot Avatar Styling */
+.bot .message {
+  max-width: 100%;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-left: 50px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  display: inline-block;
+  width: calc(100% - 60px);
+}
+
+/* Bot avatar styling */
 .avatar {
   display: inline-block;
   width: 40px;
@@ -120,23 +198,7 @@ body {
   object-fit: cover;
 }
 
-/* Bot message styling */
-.bot .message {
-  max-width: 100%;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  word-wrap: break-word;
-  margin-left: 50px;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  display: inline-block;
-  width: calc(100% - 60px);
-}
-
-/* Markdown Styling */
+/* Bot code block styling */
 .bot .message pre {
   background-color: #272822;
   color: #f8f8f2;
@@ -147,7 +209,6 @@ body {
   word-wrap: break-word;
   width: 100%;
   box-sizing: border-box;
-  overflow: auto;
   margin-top: 10px;
 }
 
@@ -171,18 +232,4 @@ body {
 
 .bot .copy-code-btn:active {
   background-color: #388e3c;
-}
-
-/* User message styling */
-.user .message {
-  display: inline-block;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  word-wrap: break-word;
-  max-width: 80%;
-  white-space: pre-wrap;
-  word-wrap: break-word;
 }

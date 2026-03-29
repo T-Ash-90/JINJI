@@ -6,7 +6,6 @@ import signal
 import sys
 
 OLLAMA_URL = "http://localhost:11434"
-MODEL = "phi4-mini:latest"
 
 ollama_process = None
 started_ollama = False
@@ -42,37 +41,6 @@ def wait_for_ollama(timeout=20):
     return False
 
 
-def is_model_available():
-    try:
-        r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
-        models = r.json().get("models", [])
-        return any(m["name"] == MODEL for m in models)
-    except Exception:
-        return False
-
-
-def pull_model():
-    print(f"Pulling model {MODEL}...")
-    subprocess.run(["ollama", "pull", MODEL], check=True)
-
-
-def warmup_model():
-    print(f"Warming up model {MODEL}...")
-    try:
-        requests.post(
-            f"{OLLAMA_URL}/api/chat",
-            json={
-                "model": MODEL,
-                "messages": [{"role": "user", "content": "Hello"}],
-                "stream": False,
-            },
-            timeout=60,
-        )
-        print("Model is warm.")
-    except Exception as e:
-        print(f"Warmup failed (continuing anyway): {e}")
-
-
 # -------------------------
 # Shutdown handling
 # -------------------------
@@ -84,14 +52,12 @@ def cleanup():
     if started_ollama and ollama_process:
         print("Stopping Ollama (owned by this process)...")
         ollama_process.terminate()
-
         try:
             ollama_process.wait(timeout=5)
             print("Ollama stopped.")
         except subprocess.TimeoutExpired:
             print("Ollama did not stop in time, killing...")
             ollama_process.kill()
-
     else:
         print("Ollama was not started by this script, leaving it running.")
 
@@ -99,6 +65,7 @@ def cleanup():
 def signal_handler(sig, frame):
     cleanup()
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
@@ -109,7 +76,6 @@ signal.signal(signal.SIGTERM, signal_handler)
 # -------------------------
 if __name__ == "__main__":
     try:
-        # Step 1: Start Ollama
         if not is_ollama_running():
             ollama_process = start_ollama()
             started_ollama = True
@@ -119,16 +85,8 @@ if __name__ == "__main__":
         else:
             print("Ollama already running.")
 
-        # Step 2: Ensure model exists
-        if not is_model_available():
-            pull_model()
-        else:
-            print(f"Model {MODEL} already available.")
+        print("Dynamic models will be selected by the frontend. Skipping model pull/warmup.")
 
-        # Step 3: Warmup
-        warmup_model()
-
-        # Step 4: Start FastAPI
         print("Starting FastAPI server...")
         uvicorn.run(
             "backend.server:app",

@@ -14,15 +14,25 @@
 
 <body>
 
-<img src="assets/images/logo.png" alt="Jinji Logo" id="logo">
+  <div id="main-container">
+    <div id="sidebar">
+      <img src="assets/images/logo.png" alt="Jinji Logo" id="logo">
+      <div id="model-selector-container">
+          <label for="model-selector">Choose Model:</label>
+          <select id="model-selector">
+              <option value="">Loading models...</option>
+          </select>
+      </div>
+    </div>
 
-<div id="chat-container">
-  <div id="chat-box"></div>
-  <div id="input-container">
-    <textarea id="input" placeholder="Type a message..."></textarea>
-    <button id="send-button">Send</button>
+    <div id="chat-container">
+      <div id="chat-box"></div>
+      <div id="input-container">
+        <textarea id="input" placeholder="Type a message..."></textarea>
+        <button id="send-button">Send</button>
+      </div>
+    </div>
   </div>
-</div>
 
 <script src="chat.js"></script>
 
