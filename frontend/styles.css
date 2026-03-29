@@ -194,43 +194,40 @@ body {
   white-space: pre-wrap;
 }
 
-/* Bot message styling */
+/* Bot message layout */
 .bot {
-  align-self: flex-start;
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
-  margin-bottom: 10px;
+  gap: 10px;
   max-width: 80%;
 }
 
-.bot .message {
-  max-width: 100%;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-left: 50px;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  display: inline-block;
-  width: calc(100% - 60px);
-}
-
-/* Bot avatar styling */
+/* Avatar container */
 .avatar {
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 5px;
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
   border-radius: 50%;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
+/* Avatar image */
 .avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* Bot content bubble */
+.bot-content {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1;
 }
 
 /* Bot code block styling */
@@ -258,6 +255,7 @@ body {
   cursor: pointer;
   transition: background-color 0.2s;
   position: relative;
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 
@@ -267,4 +265,43 @@ body {
 
 .bot .copy-code-btn:active {
   background-color: #388e3c;
+}
+
+/* Markdown styling */
+
+.bot-content h1 { font-size: 22px; margin: 10px 0; }
+.bot-content h2 { font-size: 20px; margin: 8px 0; }
+.bot-content h3 { font-size: 18px; margin: 6px 0; }
+
+.bot-content p {
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.bot-content ul {
+  padding-left: 20px;
+}
+
+.bot-content li {
+  margin: 4px 0;
+}
+
+/* Code blocks */
+pre {
+  background: #696363;
+  color: #eaeaea;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+code {
+  background: #eee;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+pre code {
+  background: none;
 }

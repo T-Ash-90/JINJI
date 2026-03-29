@@ -1,30 +1,110 @@
 let history = [];
 let currentController = null;
+
 let inputField;
 let sendButton;
 let stopButton;
 let modelSelector;
 
 /* -------------------------
+   Markdown Parser
+------------------------- */
+function renderMarkdown(text) {
+    const escapeHtml = (str) =>
+        str.replace(/&/g, "&amp;")
+           .replace(/</g, "&lt;")
+           .replace(/>/g, "&gt;");
+
+    const lines = text.split("\n");
+    let html = "";
+    let inCodeBlock = false;
+    let inList = false;
+
+    for (let line of lines) {
+
+        if (line.startsWith("```")) {
+            if (!inCodeBlock) {
+                inCodeBlock = true;
+                html += "<pre><code>";
+            } else {
+                inCodeBlock = false;
+                html += "</code></pre>";
+            }
+            continue;
+        }
+
+        if (inCodeBlock) {
+            html += escapeHtml(line) + "\n";
+            continue;
+        }
+
+        if (line.startsWith("### ")) {
+            html += `<h3>${escapeInline(line.slice(4))}</h3>`;
+            continue;
+        }
+        if (line.startsWith("## ")) {
+            html += `<h2>${escapeInline(line.slice(3))}</h2>`;
+            continue;
+        }
+        if (line.startsWith("# ")) {
+            html += `<h1>${escapeInline(line.slice(2))}</h1>`;
+            continue;
+        }
+
+        if (line.startsWith("- ")) {
+            if (!inList) {
+                inList = true;
+                html += "<ul>";
+            }
+            html += `<li>${escapeInline(line.slice(2))}</li>`;
+            continue;
+        } else if (inList) {
+            html += "</ul>";
+            inList = false;
+        }
+
+        if (line.trim() !== "") {
+            html += `<p>${escapeInline(line)}</p>`;
+        }
+    }
+
+    if (inList) html += "</ul>";
+
+    return html;
+
+    function escapeInline(str) {
+        let s = escapeHtml(str);
+        s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        s = s.replace(/\*(.*?)\*/g, "<em>$1</em>");
+        s = s.replace(/`(.*?)`/g, "<code>$1</code>");
+        return s;
+    }
+}
+
+/* -------------------------
    UI State Helpers
 ------------------------- */
 function isModelSelected() {
-    const model = modelSelector.value;
-    return model && model.trim() !== "";
+    return modelSelector.value && modelSelector.value.trim() !== "";
+}
+
+function hasInputText() {
+    return inputField.value.trim().length > 0;
 }
 
 function updateSendButtonState() {
-    sendButton.disabled = !isModelSelected() || currentController !== null;
+    const hasModel = isModelSelected();
+    const hasText = hasInputText();
+    const isBusy = currentController !== null;
+
+    sendButton.disabled = !(hasModel && hasText) || isBusy;
 }
 
 function setGeneratingState(isGenerating) {
     stopButton.disabled = !isGenerating;
+    inputField.disabled = isGenerating;
 
-    if (isGenerating) {
-        sendButton.disabled = true;
-    } else {
-        updateSendButtonState();
-    }
+    updateSendButtonState();
 }
 
 /* -------------------------
@@ -37,42 +117,24 @@ async function loadModels() {
 
         modelSelector.innerHTML = "";
 
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.textContent = "-- Select a model --";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        modelSelector.appendChild(defaultOption);
+        const def = document.createElement("option");
+        def.textContent = "-- Select a model --";
+        def.value = "";
+        def.disabled = true;
+        def.selected = true;
+        modelSelector.appendChild(def);
 
-        const savedModel = localStorage.getItem("selectedModel");
-
-        if (data.status === "ok" && data.models.length > 0) {
-            let savedModelExists = false;
-
+        if (data.status === "ok") {
             data.models.forEach(model => {
-                const option = document.createElement("option");
-                option.value = model;
-                option.textContent = model;
-
-                if (savedModel && savedModel === model) {
-                    option.selected = true;
-                    savedModelExists = true;
-                }
-
-                modelSelector.appendChild(option);
+                const opt = document.createElement("option");
+                opt.value = model;
+                opt.textContent = model;
+                modelSelector.appendChild(opt);
             });
-
-            if (!savedModelExists) {
-                localStorage.removeItem("selectedModel");
-            }
-        } else {
-            const option = document.createElement("option");
-            option.textContent = "No models available";
-            modelSelector.appendChild(option);
         }
-    } catch (err) {
-        console.error("Failed to load models:", err);
-        modelSelector.innerHTML = "<option>Failed to load models</option>";
+
+    } catch (e) {
+        modelSelector.innerHTML = "<option>Error loading models</option>";
     }
 
     updateSendButtonState();
@@ -86,11 +148,7 @@ async function sendMessage() {
     if (!text || currentController) return;
 
     const model = modelSelector.value;
-
-    if (!model) {
-        alert("Please select a model first.");
-        return;
-    }
+    if (!model) return;
 
     appendMessage("user", text);
     inputField.value = "";
@@ -103,33 +161,27 @@ async function sendMessage() {
     let fullReply = "";
 
     try {
-        const response = await fetch("http://localhost:8000/chat", {
+        const res = await fetch("http://localhost:8000/chat", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                message: text,
-                history: history,
-                model: model
-            }),
+            body: JSON.stringify({ message: text, history, model }),
             signal: currentController.signal
         });
 
-        const reader = response.body.getReader();
+        const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value, { stream: true });
+            const chunk = decoder.decode(value);
             fullReply += chunk;
 
-            botDiv.innerHTML = marked.parse(fullReply);
+            botDiv.innerHTML = renderMarkdown(fullReply);
 
-            botDiv.querySelectorAll("pre code").forEach(block => {
-                hljs.highlightBlock(block);
-                addCopyButton(block);
-            });
+            botDiv.querySelectorAll("pre code").forEach(addCopyButton);
+            scrollToBottom();
         }
 
         if (fullReply.trim()) {
@@ -139,14 +191,14 @@ async function sendMessage() {
 
     } catch (err) {
         if (err.name === "AbortError") {
-            botDiv.innerHTML += "<br><em>⛔ Generation stopped.</em>";
+            botDiv.innerHTML += "<p><em>⛔ Generation stopped.</em></p>";
         } else {
-            console.error("Fetch error:", err);
-            botDiv.innerHTML += "<br><em>⚠️ Error occurred.</em>";
+            botDiv.innerHTML += "<p><em>⚠️ Error occurred.</em></p>";
         }
     } finally {
         currentController = null;
         setGeneratingState(false);
+        inputField.focus();
     }
 }
 
@@ -154,108 +206,101 @@ async function sendMessage() {
    Stop Generation
 ------------------------- */
 function stopGeneration() {
-    if (currentController) {
-        currentController.abort();
-    }
+    if (currentController) currentController.abort();
 }
 
 /* -------------------------
    Message Rendering
 ------------------------- */
 function appendMessage(role, text) {
-    const chatBox = document.getElementById("chat-box");
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", role);
+    const box = document.getElementById("chat-box");
+    const div = document.createElement("div");
+    div.classList.add("message", role);
 
     if (role === "bot") {
-        const avatarDiv = document.createElement("div");
-        avatarDiv.classList.add("avatar");
+        const avatar = document.createElement("div");
+        avatar.classList.add("avatar");
 
-        const avatarImg = document.createElement("img");
-        avatarImg.src = "assets/images/jinji.png";
-        avatarImg.alt = "Bot Avatar";
-        avatarImg.classList.add("avatar-img");
+        const img = document.createElement("img");
+        img.src = "assets/images/jinji.png";
+        img.classList.add("avatar-img");
 
-        avatarDiv.appendChild(avatarImg);
-        msgDiv.appendChild(avatarDiv);
+        avatar.appendChild(img);
 
-        if (text) msgDiv.innerHTML += marked.parse(text);
+        const content = document.createElement("div");
+        content.classList.add("bot-content");
+        content.innerHTML = renderMarkdown(text);
+
+        div.appendChild(avatar);
+        div.appendChild(content);
+
+        box.appendChild(div);
+        scrollToBottom();
+
+        return content;
     } else {
-        const pre = document.createElement("pre");
-        pre.textContent = text;
-        msgDiv.appendChild(pre);
+        div.textContent = text;
+        box.appendChild(div);
+        scrollToBottom();
+        return div;
     }
-
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    return msgDiv;
 }
 
 /* -------------------------
-   Code Copy
+   Copy Code
 ------------------------- */
 function addCopyButton(codeBlock) {
     if (codeBlock.parentElement.querySelector(".copy-code-btn")) return;
 
-    const button = document.createElement("button");
-    button.textContent = "Copy Code";
-    button.classList.add("copy-code-btn");
+    const btn = document.createElement("button");
+    btn.textContent = "Copy";
+    btn.classList.add("copy-code-btn");
 
-    button.addEventListener("click", () => {
-        copyCodeToClipboard(codeBlock, button);
-    });
+    btn.onclick = () => {
+        navigator.clipboard.writeText(codeBlock.innerText);
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = "Copy", 1000);
+    };
 
     codeBlock.parentElement.style.position = "relative";
-    codeBlock.parentElement.appendChild(button);
+    codeBlock.parentElement.appendChild(btn);
 }
 
-function copyCodeToClipboard(codeBlock, button) {
-    const range = document.createRange();
-    range.selectNodeContents(codeBlock);
-
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-
-    if (document.execCommand("copy")) {
-        button.textContent = "Copied!";
-        setTimeout(() => (button.textContent = "Copy Code"), 1000);
-    }
-
-    selection.removeAllRanges();
+/* -------------------------
+   Scroll Helper
+------------------------- */
+function scrollToBottom() {
+    const box = document.getElementById("chat-box");
+    box.scrollTo({
+        top: box.scrollHeight,
+        behavior: "smooth"
+    });
 }
 
 /* -------------------------
    Init
 ------------------------- */
-window.addEventListener("DOMContentLoaded", () => {
+window.onload = () => {
     inputField = document.getElementById("input");
     sendButton = document.getElementById("send-button");
     stopButton = document.getElementById("stop-button");
     modelSelector = document.getElementById("model-selector");
 
-    const savedModel = localStorage.getItem("selectedModel");
-    if (savedModel) {
-        modelSelector.value = savedModel;
-    }
+    sendButton.onclick = sendMessage;
+    stopButton.onclick = stopGeneration;
 
-    modelSelector.addEventListener("change", () => {
-        updateSendButtonState();
-        localStorage.setItem("selectedModel", modelSelector.value);
-    });
+    inputField.addEventListener("input", updateSendButtonState);
 
-    inputField.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
+    inputField.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
             sendMessage();
         }
     });
 
-    sendButton.addEventListener("click", sendMessage);
-    stopButton.addEventListener("click", stopGeneration);
+    modelSelector.addEventListener("change", updateSendButtonState);
 
-    setGeneratingState(false);
+    updateSendButtonState();
 
     loadModels();
-});
+};

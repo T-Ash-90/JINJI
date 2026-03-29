@@ -7,8 +7,6 @@
 ## Features
 
 - Browser-based chat interface with dynamic message streaming.
-- Syntax highlighting for code snippets using Highlight.js.
-- Markdown rendering via Marked.js.
 - Fully local: frontend assets and LLM models can be hosted entirely offline.
 - Supports multiple Ollama models, selected dynamically from the frontend.
 
@@ -66,27 +64,8 @@ http://localhost:8000
 
 ---
 
-### Frontend Notes
-
-- Chat messages are displayed in the chat box.
-- Markdown is rendered with marked.js.
-- Code blocks are highlighted with highlight.js (GitHub theme).
-- Code blocks have a "Copy Code" button for convenience.
-
----
-
 ## Licensing
 
-- marked.js: MIT License
-- highlight.js: BSD-3-Clause License
-- Use of Ollama models is subject to Ollama's licensing terms.
-
-This project was built as a self-learning excercise and is not intended for commercial use.
+This project was built for self-learning and is not intended for commercial use.
 
 ---
-
-## Acknowledgments
-
-- Ollama
-- Marked.js
-- Highlight.js
