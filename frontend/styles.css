@@ -4,11 +4,12 @@
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
+  background-color: #f7f7f8;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  color: #111827;
 }
 
 #main-container {
@@ -27,7 +28,7 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
@@ -47,15 +48,15 @@ body {
   font-weight: 600;
   margin-bottom: 8px;
   font-size: 0.95rem;
-  color: #333;
+  color: #374151;
 }
 
 #model-selector {
   width: 100%;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -63,9 +64,9 @@ body {
 
 #model-selector:hover,
 #model-selector:focus {
-  border-color: #007bff;
+  border-color: #10a37f;
   outline: none;
-  box-shadow: 0 0 5px rgba(0,123,255,0.3);
+  box-shadow: 0 0 5px rgba(16,163,127,0.3);
 }
 
 /* -------------------------
@@ -76,7 +77,7 @@ body {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  background-color: white;
+  background-color: #ffffff;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
@@ -88,6 +89,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background-color: #f9fafb;
 }
 
 /* -------------------------
@@ -96,8 +98,8 @@ body {
 #input-container {
   display: flex;
   padding: 10px;
-  border-top: 1px solid #eee;
-  background-color: #fafafa;
+  border-top: 1px solid #e5e7eb;
+  background-color: #ffffff;
   gap: 10px;
   align-items: stretch;
 }
@@ -107,10 +109,18 @@ body {
   padding: 10px;
   font-size: 16px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid #d1d5db;
   resize: none;
   line-height: 1.5;
   height: 120px;
+  background-color: #ffffff;
+  color: #111827;
+}
+
+#input:focus {
+  border-color: #10a37f;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(16,163,127,0.15);
 }
 
 /* New button column */
@@ -139,22 +149,23 @@ body {
 }
 
 #send-button:hover:enabled {
-  background-color: #0d7c63;
+  background-color: #0d8f6f;
 }
 
 /* Stop button */
 #stop-button {
-  background-color: #e74c3c;
+  background-color: #ef4444;
 }
 
 #stop-button:hover:enabled {
-  background-color: #c0392b;
+  background-color: #dc2626;
 }
 
 /* Disabled state */
 #stop-button:disabled,
 #send-button:disabled {
-  background-color: #aaa;
+  background-color: #d1d5db;
+  color: #6b7280;
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -187,10 +198,10 @@ body {
 .user .message {
   display: inline-block;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #0d8f6f;
   color: white;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(16,163,127,0.25);
   max-width: 80%;
   white-space: pre-wrap;
 }
@@ -224,16 +235,17 @@ body {
 
 /* Bot content bubble */
 .bot-content {
-  background-color: #f0f0f0;
-  padding: 10px;
+  background-color: #f3f4f6;
+  padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   flex: 1;
 }
 
 /* Bot code block styling */
 .bot .message pre {
-  background-color: #272822;
+  position: relative;
+  background-color: #1f2937;
   color: #f8f8f2;
   padding: 10px;
   border-radius: 6px;
@@ -247,36 +259,35 @@ body {
 
 /* Copy Code Button */
 .bot .copy-code-btn {
-  background-color: #4CAF50;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #10a37f;
   color: white;
   font-size: 12px;
-  padding: 5px 10px;
+  padding: 10px 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
-  position: relative;
-  margin-top: 5px;
-  margin-bottom: 5px;
 }
 
 .bot .copy-code-btn:hover {
-  background-color: #45a049;
+  background-color: #0d8f6f;
 }
 
 .bot .copy-code-btn:active {
-  background-color: #388e3c;
+  background-color: #0b7a60;
 }
 
 /* Markdown styling */
-
 .bot-content h1 { font-size: 22px; margin: 10px 0; }
 .bot-content h2 { font-size: 20px; margin: 8px 0; }
 .bot-content h3 { font-size: 18px; margin: 6px 0; }
 
 .bot-content p {
   margin: 6px 0;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .bot-content ul {
@@ -289,15 +300,15 @@ body {
 
 /* Code blocks */
 pre {
-  background: #696363;
-  color: #eaeaea;
+  background: #1f2937;
+  color: #e5e7eb;
   padding: 10px;
   border-radius: 6px;
   overflow-x: auto;
 }
 
 code {
-  background: #eee;
+  background: #e5e7eb;
   padding: 2px 4px;
   border-radius: 4px;
   font-family: monospace;
