@@ -242,6 +242,27 @@ body {
   flex: 1;
 }
 
+/* Bot thinking animation */
+.bot .bot-content .thinking {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.bot .bot-content .thinking .dots::after {
+    content: '';
+    display: inline-block;
+    width: 1ch;
+    text-align: left;
+    animation: dots 1s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
+
 /* Bot code block styling */
 .bot .message pre {
   position: relative;

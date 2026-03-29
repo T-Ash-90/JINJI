@@ -82,7 +82,6 @@ async function loadModels() {
    Send Message
 ------------------------- */
 async function sendMessage() {
-
     if (!history.length || history[0].role !== "system") {
         history.unshift({ role: "system", content: DEFAULT_SYSTEM_PROMPT });
     }
@@ -96,7 +95,17 @@ async function sendMessage() {
     appendMessage("user", text);
     inputField.value = "";
 
-    const botDiv = appendMessage("bot", "");
+    const botDiv = appendMessage(
+        "bot",
+        `<em class="thinking">JINJI is thinking<span class="dots">...</span></em>`
+    );
+
+    let dots = 0;
+    const thinkingInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        botDiv.innerHTML = `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
+        scrollToBottom();
+    }, 500);
 
     currentController = new AbortController();
     setGeneratingState(true);
@@ -114,12 +123,19 @@ async function sendMessage() {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
+        let firstChunk = true;
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
             const chunk = decoder.decode(value);
             fullReply += chunk;
+
+            if (firstChunk) {
+                clearInterval(thinkingInterval);
+                firstChunk = false;
+            }
 
             botDiv.innerHTML = renderMarkdown(fullReply);
             botDiv.querySelectorAll("pre code").forEach(addCopyButton);
@@ -132,12 +148,15 @@ async function sendMessage() {
         }
 
     } catch (err) {
+        clearInterval(thinkingInterval);
+
         if (err.name === "AbortError") {
             botDiv.innerHTML += "<p><em>⛔ Generation stopped.</em></p>";
         } else {
             botDiv.innerHTML += "<p><em>⚠️ Error occurred.</em></p>";
         }
     } finally {
+        clearInterval(thinkingInterval);
         currentController = null;
         setGeneratingState(false);
         inputField.focus();
@@ -171,11 +190,10 @@ function appendMessage(role, text) {
 
         const content = document.createElement("div");
         content.classList.add("bot-content");
-        content.innerHTML = renderMarkdown(text);
+        content.innerHTML = text;
 
         div.appendChild(avatar);
         div.appendChild(content);
-
         box.appendChild(div);
         scrollToBottom();
 
