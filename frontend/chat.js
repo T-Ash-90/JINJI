@@ -55,7 +55,9 @@ function appendMessage(role, text) {
         msgDiv.appendChild(avatarDiv);
         msgDiv.innerHTML += text ? marked.parse(text) : '';
     } else {
-        msgDiv.textContent = text;
+        const preElement = document.createElement('pre');
+        preElement.textContent = text;
+        msgDiv.appendChild(preElement);
     }
 
     chatBox.appendChild(msgDiv);

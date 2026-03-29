@@ -20,7 +20,7 @@ body {
   display: flex;
   flex-direction: column;
   width: 1200px;
-  height: 80vh;
+  height: 95vh;
   border: 1px solid #ccc;
   border-radius: 10px;
   background-color: white;
@@ -52,6 +52,7 @@ body {
   border: 1px solid #ccc;
   resize: none;
   line-height: 1.5;
+  height: 120px;
 }
 
 #send-button {
@@ -78,6 +79,11 @@ body {
   word-wrap: break-word;
   display: flex;
   align-items: center;
+}
+
+.message pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .user {
@@ -123,24 +129,14 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   word-wrap: break-word;
   margin-left: 50px;
-  white-space: normal;
+  white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
   display: inline-block;
+  width: calc(100% - 60px);
 }
 
-/* User message styling */
-.user .message {
-  display: inline-block;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  word-wrap: break-word;
-  max-width: 80%;
-}
-
+/* Markdown Styling */
 .bot .message pre {
   background-color: #272822;
   color: #f8f8f2;
@@ -149,6 +145,10 @@ body {
   overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+  margin-top: 10px;
 }
 
 /* Copy Code Button */
@@ -161,9 +161,8 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: relative;
+  margin-bottom: 5px;
 }
 
 .bot .copy-code-btn:hover {
@@ -172,4 +171,18 @@ body {
 
 .bot .copy-code-btn:active {
   background-color: #388e3c;
+}
+
+/* User message styling */
+.user .message {
+  display: inline-block;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  word-wrap: break-word;
+  max-width: 80%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
