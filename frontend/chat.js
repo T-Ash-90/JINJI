@@ -240,8 +240,10 @@ function appendMessage(role, text) {
         return content;
     } else {
         div.textContent = text;
+
         box.appendChild(div);
         scrollToBottom();
+
         return div;
     }
 }
@@ -301,6 +303,5 @@ window.onload = () => {
     modelSelector.addEventListener("change", updateSendButtonState);
 
     updateSendButtonState();
-
     loadModels();
 };

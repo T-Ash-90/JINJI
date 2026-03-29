@@ -181,6 +181,7 @@ body {
   align-self: flex-end;
   background-color: #10a37f;
   color: white;
+  white-space: pre-wrap;
 }
 
 .user .message {
