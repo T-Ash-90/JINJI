@@ -13,10 +13,18 @@ let isSticky = true;
 async function loadDefaultPrompt() {
     try {
         const res = await fetch("/assets/prompt.txt");
-        DEFAULT_SYSTEM_PROMPT = await res.text();
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+
+        DEFAULT_SYSTEM_PROMPT = (await res.text()).trim();
+
+        console.log("✅ Loaded system prompt from prompt.txt:", DEFAULT_SYSTEM_PROMPT);
+
     } catch (err) {
-        console.error("Failed to load default prompt:", err);
-        DEFAULT_SYSTEM_PROMPT = "You are Jinji, a helpful assistant that happens to also be a cat.";
+        console.error("❌ Failed to load prompt.txt, using fallback prompt:", err);
+
+        DEFAULT_SYSTEM_PROMPT = "You are Jinji, a helpful female feline assistant that happens to also be a cat.";
     }
 }
 
