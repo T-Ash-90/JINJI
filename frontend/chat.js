@@ -272,12 +272,24 @@ function renderMarkdown(text) {
            .replace(/</g, "&lt;")
            .replace(/>/g, "&gt;");
 
+    function escapeInline(str) {
+        let s = escapeHtml(str);
+        s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        s = s.replace(/\*(.*?)\*/g, "<em>$1</em>");
+        s = s.replace(/`(.*?)`/g, "<code>$1</code>");
+        s = s.replace(/$$(.*?)$$$$(.*?)$$/g, '<a href="$$2">$$1</a>');
+        return s;
+    }
+
     const lines = text.split("\n");
     let html = "";
     let inCodeBlock = false;
     let inList = false;
+    let inQuote = false;
 
-    for (let line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+
         if (line.startsWith("```")) {
             if (!inCodeBlock) {
                 inCodeBlock = true;
@@ -294,13 +306,30 @@ function renderMarkdown(text) {
             continue;
         }
 
+        if (line.startsWith("> ")) {
+            if (!inQuote) { inQuote = true; html += "<blockquote>"; }
+            html += `<p>${escapeInline(line.slice(2))}</p>`;
+            continue;
+        } else if (inQuote) {
+            html += "</blockquote>";
+            inQuote = false;
+        }
+
         if (line.startsWith("### ")) { html += `<h3>${escapeInline(line.slice(4))}</h3>`; continue; }
         if (line.startsWith("## ")) { html += `<h2>${escapeInline(line.slice(3))}</h2>`; continue; }
         if (line.startsWith("# ")) { html += `<h1>${escapeInline(line.slice(2))}</h1>`; continue; }
 
-        if (line.startsWith("- ")) {
+        if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) {
+            html += "<hr>";
+            continue;
+        }
+
+        if (line.startsWith("- ") || line.startsWith("* ")) {
             if (!inList) { inList = true; html += "<ul>"; }
             html += `<li>${escapeInline(line.slice(2))}</li>`;
+            continue;
+        } else if (inList && line.trim() === "") {
+
             continue;
         } else if (inList) {
             html += "</ul>";
@@ -312,17 +341,10 @@ function renderMarkdown(text) {
         }
     }
 
-    if (inList) html += "</ul";
+    if (inList) html += "</ul>";
+    if (inQuote) html += "</blockquote>";
 
     return html;
-
-    function escapeInline(str) {
-        let s = escapeHtml(str);
-        s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        s = s.replace(/\*(.*?)\*/g, "<em>$1</em>");
-        s = s.replace(/`(.*?)`/g, "<code>$1</code>");
-        return s;
-    }
 }
 
 /* -------------------------
