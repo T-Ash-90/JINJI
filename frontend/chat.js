@@ -1,12 +1,11 @@
 let history = [];
 let currentController = null;
-
 let inputField;
 let sendButton;
 let stopButton;
 let modelSelector;
-
 let DEFAULT_SYSTEM_PROMPT = "";
+let isSticky = true;
 
 /* -------------------------
    Load default prompt
@@ -79,6 +78,30 @@ async function loadModels() {
 }
 
 /* -------------------------
+   Scroll Logic
+------------------------- */
+function scrollToBottom(force = false) {
+    const box = document.getElementById("chat-box");
+
+    if (isSticky || force) {
+        box.scrollTop = box.scrollHeight;
+    }
+}
+
+function setupScrollTracking() {
+    const box = document.getElementById("chat-box");
+
+    box.addEventListener("scroll", () => {
+        const threshold = 5;
+
+        const atBottom =
+            box.scrollTop + box.clientHeight >= box.scrollHeight - threshold;
+
+        isSticky = atBottom;
+    });
+}
+
+/* -------------------------
    Send Message
 ------------------------- */
 async function sendMessage() {
@@ -104,7 +127,7 @@ async function sendMessage() {
     const thinkingInterval = setInterval(() => {
         dots = (dots + 1) % 4;
         botDiv.innerHTML = `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
-        scrollToBottom();
+        if (isSticky) scrollToBottom(true);
     }, 500);
 
     currentController = new AbortController();
@@ -129,6 +152,8 @@ async function sendMessage() {
             const { done, value } = await reader.read();
             if (done) break;
 
+            const wasSticky = isSticky;
+
             const chunk = decoder.decode(value);
             fullReply += chunk;
 
@@ -139,7 +164,8 @@ async function sendMessage() {
 
             botDiv.innerHTML = renderMarkdown(fullReply);
             botDiv.querySelectorAll("pre code").forEach(addCopyButton);
-            scrollToBottom();
+
+            if (wasSticky) scrollToBottom(true);
         }
 
         if (fullReply.trim()) {
@@ -175,6 +201,8 @@ function stopGeneration() {
 ------------------------- */
 function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
+    const wasSticky = isSticky;
+
     const div = document.createElement("div");
     div.classList.add("message", role);
 
@@ -195,13 +223,14 @@ function appendMessage(role, text) {
         div.appendChild(avatar);
         div.appendChild(content);
         box.appendChild(div);
-        scrollToBottom();
 
+        if (wasSticky) scrollToBottom(true);
         return content;
     } else {
         div.textContent = text;
         box.appendChild(div);
-        scrollToBottom();
+
+        if (wasSticky) scrollToBottom(true);
         return div;
     }
 }
@@ -216,9 +245,6 @@ function addCopyButton(codeBlock) {
     btn.textContent = "Copy";
     btn.classList.add("copy-code-btn");
 
-    // Align right
-    btn.style.float = "right";
-
     btn.onclick = () => {
         navigator.clipboard.writeText(codeBlock.innerText);
         btn.textContent = "Copied!";
@@ -227,14 +253,6 @@ function addCopyButton(codeBlock) {
 
     codeBlock.parentElement.style.position = "relative";
     codeBlock.parentElement.appendChild(btn);
-}
-
-/* -------------------------
-   Scroll Helper
-------------------------- */
-function scrollToBottom() {
-    const box = document.getElementById("chat-box");
-    box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
 }
 
 /* -------------------------
@@ -276,12 +294,17 @@ function renderMarkdown(text) {
             if (!inList) { inList = true; html += "<ul>"; }
             html += `<li>${escapeInline(line.slice(2))}</li>`;
             continue;
-        } else if (inList) { html += "</ul>"; inList = false; }
+        } else if (inList) {
+            html += "</ul>";
+            inList = false;
+        }
 
-        if (line.trim() !== "") html += `<p>${escapeInline(line)}</p>`;
+        if (line.trim() !== "") {
+            html += `<p>${escapeInline(line)}</p>`;
+        }
     }
 
-    if (inList) html += "</ul>";
+    if (inList) html += "</ul";
 
     return html;
 
@@ -303,6 +326,8 @@ window.onload = async () => {
     stopButton = document.getElementById("stop-button");
     modelSelector = document.getElementById("model-selector");
 
+    setupScrollTracking();
+
     await loadDefaultPrompt();
     loadModels();
 
@@ -311,15 +336,22 @@ window.onload = async () => {
 
     inputField.addEventListener("input", updateSendButtonState);
     inputField.addEventListener("keydown", e => {
-        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
     });
+
     modelSelector.addEventListener("change", () => {
-    updateSendButtonState();
+        updateSendButtonState();
 
-    const previousMessages = history.filter(m => m.role !== "system");
+        const previousMessages = history.filter(m => m.role !== "system");
 
-    history = [{ role: "system", content: DEFAULT_SYSTEM_PROMPT }, ...previousMessages];
-});
+        history = [
+            { role: "system", content: DEFAULT_SYSTEM_PROMPT },
+            ...previousMessages
+        ];
+    });
 
     updateSendButtonState();
 };
