@@ -14,7 +14,7 @@ body {
 
 #main-container {
   display: flex;
-  width: 1720px;
+  width: 1600px;
   height: 95vh;
   gap: 20px;
 }
@@ -64,7 +64,7 @@ body {
 
 #model-selector:hover,
 #model-selector:focus {
-  border-color: #10a37f;
+  border-color: #059669;
   outline: none;
   box-shadow: 0 0 5px rgba(16,163,127,0.3);
 }
@@ -107,7 +107,7 @@ body {
 #input {
   flex: 1;
   padding: 10px;
-  font-size: 16px;
+  font-size: 17px;
   border-radius: 6px;
   border: 1px solid #d1d5db;
   resize: none;
@@ -118,7 +118,7 @@ body {
 }
 
 #input:focus {
-  border-color: #10a37f;
+  border-color: #059669;
   outline: none;
   box-shadow: 0 0 0 2px rgba(16,163,127,0.15);
 }
@@ -132,7 +132,7 @@ body {
 
 #send-button,
 #stop-button {
-  padding: 10px;
+  padding: 20px;
   font-size: 15px;
   border: none;
   border-radius: 6px;
@@ -141,8 +141,8 @@ body {
   transition: all 0.2s ease;
 }
 
-#send-button { background-color: #10a37f; }
-#send-button:hover:enabled { background-color: #0d8f6f; }
+#send-button { background-color: #059669; }
+#send-button:hover:enabled { background-color: #408171; }
 
 #stop-button { background-color: #ef4444; }
 #stop-button:hover:enabled { background-color: #dc2626; }
@@ -169,7 +169,7 @@ body {
 
 .user {
   align-self: flex-end;
-  background-color: #10a37f;
+  background-color: #059669;
   color: white;
   font-size: 18px;
   white-space: pre-wrap;
@@ -200,7 +200,7 @@ body {
 }
 
 .bot-content {
-  background-color: #ebebeb;
+  background-color: #f1f1f1;
   padding: 12px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -218,13 +218,13 @@ body {
 .bot-content li { margin: 4px 0; }
 
 /* -------------------------
-   Code Block System (Highlight.js + Atom One Dark)
+   Code Block System
 ------------------------- */
 .code-wrapper {
   margin-top: 10px;
   border-radius: 6px;
   overflow: hidden;
-  background-color: #282c34; /* Atom One Dark bg */
+  background-color: #282c34;
 }
 
 .code-header {
@@ -256,16 +256,16 @@ body {
   padding: 10px;
   overflow-x: auto;
   white-space: pre-wrap;
-  background: none; /* let wrapper bg show */
-  color: unset;    /* allow hljs colors */
+  background: none;
+  color: unset;
 }
 
 /* Highlight.js base styling */
 .hljs {
   display: block;
   overflow-x: auto;
-  background: none; /* wrapper background shows */
-  color: unset;     /* use hljs colors */
+  background: none;
+  color: unset;
   font-family: monospace;
   font-size: 14px;
   line-height: 1.4;
