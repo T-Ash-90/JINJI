@@ -7,10 +7,45 @@ let modelSelector;
 let DEFAULT_SYSTEM_PROMPT = "";
 let isSticky = true;
 
+/* -------------------------
+  Utilities
+------------------------- */
+
 marked.setOptions({
     breaks: true,
     gfm: true
 });
+
+async function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (err) {
+            console.warn("Clipboard API failed, falling back...", err);
+        }
+    }
+
+    try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        const success = document.execCommand("copy");
+        document.body.removeChild(textarea);
+
+        return success;
+    } catch (err) {
+        console.error("Fallback copy failed:", err);
+        return false;
+    }
+}
 
 /* -------------------------
    Markdown Plugin System
@@ -68,12 +103,8 @@ registerMarkdownPlugin(container => {
         langLabel.textContent = lang;
 
         const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
         copyBtn.textContent = "Copy";
-        copyBtn.onclick = () => {
-            navigator.clipboard.writeText(block.innerText);
-            copyBtn.textContent = "Copied!";
-            setTimeout(() => copyBtn.textContent = "Copy", 1000);
-        };
 
         header.appendChild(langLabel);
         header.appendChild(copyBtn);
@@ -368,3 +399,24 @@ window.onload = async () => {
 
     updateSendButtonState();
 };
+
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".copy-btn");
+    if (!btn) return;
+
+    const wrapper = btn.closest(".code-wrapper");
+    if (!wrapper) return;
+
+    const codeBlock = wrapper.querySelector("code");
+    if (!codeBlock) return;
+
+    const code = codeBlock.textContent;
+
+    const success = await copyToClipboard(code);
+
+    btn.textContent = success ? "Copied!" : "Failed!";
+
+    setTimeout(() => {
+        btn.textContent = "Copy";
+    }, 1200);
+});
