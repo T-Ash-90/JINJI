@@ -7,6 +7,11 @@ let modelSelector;
 let DEFAULT_SYSTEM_PROMPT = "";
 let isSticky = true;
 
+marked.setOptions({
+    breaks: true,
+    gfm: true
+});
+
 /* -------------------------
    Load default prompt
 ------------------------- */
@@ -170,13 +175,16 @@ async function sendMessage() {
                 firstChunk = false;
             }
 
-            botDiv.innerHTML = renderMarkdown(fullReply);
-            botDiv.querySelectorAll("pre code").forEach(addCopyButton);
+            botDiv.innerHTML = marked.parse(fullReply);
 
             if (wasSticky) scrollToBottom(true);
         }
 
         if (fullReply.trim()) {
+            botDiv.innerHTML = renderMarkdown(fullReply);
+
+            botDiv.querySelectorAll("pre code").forEach(addCopyButton);
+
             history.push({ role: "user", content: text });
             history.push({ role: "assistant", content: fullReply });
         }
@@ -267,84 +275,50 @@ function addCopyButton(codeBlock) {
    Markdown Parser
 ------------------------- */
 function renderMarkdown(text) {
-    const escapeHtml = (str) =>
-        str.replace(/&/g, "&amp;")
-           .replace(/</g, "&lt;")
-           .replace(/>/g, "&gt;");
+    const rawHtml = marked.parse(text);
 
-    function escapeInline(str) {
-        let s = escapeHtml(str);
-        s = s.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        s = s.replace(/\*(.*?)\*/g, "<em>$1</em>");
-        s = s.replace(/`(.*?)`/g, "<code>$1</code>");
-        s = s.replace(/$$(.*?)$$$$(.*?)$$/g, '<a href="$$2">$$1</a>');
-        return s;
-    }
+    const cleanHtml = DOMPurify.sanitize(rawHtml);
 
-    const lines = text.split("\n");
-    let html = "";
-    let inCodeBlock = false;
-    let inList = false;
-    let inQuote = false;
+    const temp = document.createElement("div");
+    temp.innerHTML = cleanHtml;
 
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
+    temp.querySelectorAll("pre code").forEach(block => {
+        try {
+            const pre = block.parentElement;
 
-        if (line.startsWith("```")) {
-            if (!inCodeBlock) {
-                inCodeBlock = true;
-                html += "<pre><code>";
-            } else {
-                inCodeBlock = false;
-                html += "</code></pre>";
-            }
-            continue;
+            const wrapper = document.createElement("div");
+            wrapper.className = "code-wrapper";
+
+            const header = document.createElement("div");
+            header.className = "code-header";
+
+            let langMatch = block.className.match(/language-(\w+)/);
+            let lang = langMatch ? langMatch[1] : "text";
+
+            const langLabel = document.createElement("span");
+            langLabel.textContent = lang;
+
+            const copyBtn = document.createElement("button");
+            copyBtn.textContent = "Copy";
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(block.innerText);
+                copyBtn.textContent = "Copied!";
+                setTimeout(() => copyBtn.textContent = "Copy", 1000);
+            };
+
+            header.appendChild(langLabel);
+            header.appendChild(copyBtn);
+
+            pre.parentNode.replaceChild(wrapper, pre);
+            wrapper.appendChild(header);
+            wrapper.appendChild(pre);
+
+        } catch (e) {
+            console.warn("Markdown render error:", e);
         }
+    });
 
-        if (inCodeBlock) {
-            html += escapeHtml(line) + "\n";
-            continue;
-        }
-
-        if (line.startsWith("> ")) {
-            if (!inQuote) { inQuote = true; html += "<blockquote>"; }
-            html += `<p>${escapeInline(line.slice(2))}</p>`;
-            continue;
-        } else if (inQuote) {
-            html += "</blockquote>";
-            inQuote = false;
-        }
-
-        if (line.startsWith("### ")) { html += `<h3>${escapeInline(line.slice(4))}</h3>`; continue; }
-        if (line.startsWith("## ")) { html += `<h2>${escapeInline(line.slice(3))}</h2>`; continue; }
-        if (line.startsWith("# ")) { html += `<h1>${escapeInline(line.slice(2))}</h1>`; continue; }
-
-        if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) {
-            html += "<hr>";
-            continue;
-        }
-
-        if (line.startsWith("- ") || line.startsWith("* ")) {
-            if (!inList) { inList = true; html += "<ul>"; }
-            html += `<li>${escapeInline(line.slice(2))}</li>`;
-            continue;
-        } else if (inList && line.trim() === "") {
-
-            continue;
-        } else if (inList) {
-            html += "</ul>";
-            inList = false;
-        }
-
-        if (line.trim() !== "") {
-            html += `<p>${escapeInline(line)}</p>`;
-        }
-    }
-
-    if (inList) html += "</ul>";
-    if (inQuote) html += "</blockquote>";
-
-    return html;
+    return temp.innerHTML;
 }
 
 /* -------------------------

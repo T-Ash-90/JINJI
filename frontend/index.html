@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JINJI</title>
-
-  <link rel="icon" type="image/x-icon" href="assets/favicon/favicon.ico">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="assets/favicon/favicon.ico">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
   <div id="main-container">
     <div id="sidebar">
-      <img src="assets/images/logo.png" alt="Jinji Logo" id="logo">
+      <img src="assets/images/logo.png" id="logo">
 
       <div id="model-selector-container">
-        <label for="model-selector">Choose Model:</label>
+        <label>Choose Model:</label>
         <select id="model-selector">
-          <option value="">Loading models...</option>
+          <option>Loading...</option>
         </select>
       </div>
     </div>
@@ -37,6 +35,8 @@
     </div>
   </div>
 
-  <script src="chat.js"></script>
+  <script src="js/purify.min.js"></script>
+  <script src="js/marked.min.js"></script>
+  <script src="js/chat.js"></script>
 </body>
 </html>

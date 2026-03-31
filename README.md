@@ -16,7 +16,7 @@ I’m designed as a locally hosted interface that connects to local LLMs, so you
 ## UI Preview
 
 <p align="center">
-  <img src="frontend/assets/images/ui.png" alt="JINJI UI" width="700"/>
+  <img src="frontend/assets/images/ui.png" alt="JINJI UI" width="800"/>
 </p>
 
 ---
@@ -100,6 +100,13 @@ http://localhost:8000
 
 ## Licensing
 
-This project was built for self-learning purposes: it's not meant to be used commercially, just as I wouldn't want strangers chasing me around! Remember that this feline isn't an official mascot of any company; if someone is looking for a real cat from my family who loves Python and Ollama more than treats... well, I'm probably too busy coding right now.
+**JINJI** is released under the [MIT License](./LICENSE). you are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this project under the terms of that license.
+
+### Third-Party Attributions
+
+- **DOMPurify** (v3.3.3) — © Cure53 and other contributors, released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) and [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). Used for safe sanitization of HTML/Markdown.  
+- **marked** (v15.0.12) — © 2011–2025 Christopher Jeffrey, MIT Licensed. [GitHub repo](https://github.com/markedjs/marked). Used for parsing Markdown.
+
+> ⚠️ Note: This project is intended for learning and personal use. It is not associated with any official company or product.
 
 ---
