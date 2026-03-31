@@ -24,6 +24,15 @@ furnished to do so, subject to the following conditions:
      © Christopher Jeffrey
      https://github.com/markedjs/marked
 
+   - Highlight.js v11.9.0 | BSD-3-Clause
+     © Igor Sysoev and other contributors
+     https://github.com/highlightjs/highlight.js
+
+   - Atom One Dark Theme (for Highlight.js) | BSD-3-Clause
+     Included as a CSS theme for Highlight.js syntax highlighting
+     © Alexander Gugel
+     https://github.com/highlightjs/highlight.js/tree/main/src/styles
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

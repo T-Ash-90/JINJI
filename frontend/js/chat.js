@@ -13,23 +13,102 @@ marked.setOptions({
 });
 
 /* -------------------------
+   Markdown Plugin System
+------------------------- */
+const markdownPlugins = [];
+
+function registerMarkdownPlugin(pluginFn) {
+    markdownPlugins.push(pluginFn);
+}
+
+function applyMarkdownPlugins(container) {
+    markdownPlugins.forEach(plugin => {
+        try {
+            plugin(container);
+        } catch (e) {
+            console.warn("Plugin error:", e);
+        }
+    });
+}
+
+/* -------------------------
+   Markdown Renderer
+------------------------- */
+function renderMarkdown(text) {
+    const rawHtml = marked.parse(text);
+    const cleanHtml = DOMPurify.sanitize(rawHtml);
+
+    const container = document.createElement("div");
+    container.innerHTML = cleanHtml;
+
+    applyMarkdownPlugins(container);
+
+    return container.innerHTML;
+}
+
+/* -------------------------
+   Markdown Plug-In
+------------------------- */
+registerMarkdownPlugin(container => {
+    container.querySelectorAll("pre code").forEach(block => {
+        if (block.parentElement.classList.contains("code-wrapper")) return;
+
+        const pre = block.parentElement;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-wrapper";
+
+        const header = document.createElement("div");
+        header.className = "code-header";
+
+        let langMatch = block.className.match(/language-(\w+)/);
+        let lang = langMatch ? langMatch[1] : "text";
+
+        const langLabel = document.createElement("span");
+        langLabel.textContent = lang;
+
+        const copyBtn = document.createElement("button");
+        copyBtn.textContent = "Copy";
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(block.innerText);
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => copyBtn.textContent = "Copy", 1000);
+        };
+
+        header.appendChild(langLabel);
+        header.appendChild(copyBtn);
+
+        pre.parentNode.replaceChild(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+
+        block.classList.add("hljs");
+        hljs.highlightElement(block);
+    });
+});
+
+registerMarkdownPlugin(container => {
+    container.querySelectorAll("a").forEach(a => {
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+    });
+});
+
+/* -------------------------
    Load default prompt
 ------------------------- */
 async function loadDefaultPrompt() {
     try {
         const res = await fetch("/assets/prompt.txt");
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error();
 
         DEFAULT_SYSTEM_PROMPT = (await res.text()).trim();
+        console.log("✅ Loaded system prompt");
 
-        console.log("✅ Loaded system prompt from prompt.txt:", DEFAULT_SYSTEM_PROMPT);
-
-    } catch (err) {
-        console.error("❌ Failed to load prompt.txt, using fallback prompt:", err);
-
-        DEFAULT_SYSTEM_PROMPT = "You are Jinji, a helpful female feline assistant that happens to also be a cat.";
+    } catch {
+        console.warn("⚠️ Using fallback prompt");
+        DEFAULT_SYSTEM_PROMPT =
+            "You are Jinji, a helpful female feline assistant that happens to also be a cat.";
     }
 }
 
@@ -48,6 +127,7 @@ function updateSendButtonState() {
     const hasModel = isModelSelected();
     const hasText = hasInputText();
     const isBusy = currentController !== null;
+
     sendButton.disabled = !(hasModel && hasText) || isBusy;
 }
 
@@ -83,7 +163,7 @@ async function loadModels() {
             });
         }
 
-    } catch (e) {
+    } catch {
         modelSelector.innerHTML = "<option>Error loading models</option>";
     }
 
@@ -95,7 +175,6 @@ async function loadModels() {
 ------------------------- */
 function scrollToBottom(force = false) {
     const box = document.getElementById("chat-box");
-
     if (isSticky || force) {
         box.scrollTop = box.scrollHeight;
     }
@@ -133,13 +212,14 @@ async function sendMessage() {
 
     const botDiv = appendMessage(
         "bot",
-        `<em class="thinking">JINJI is thinking<span class="dots">...</span></em>`
+        `<em class="thinking">JINJI is thinking...</em>`
     );
 
     let dots = 0;
     const thinkingInterval = setInterval(() => {
         dots = (dots + 1) % 4;
-        botDiv.innerHTML = `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
+        botDiv.innerHTML =
+            `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
         if (isSticky) scrollToBottom(true);
     }, 500);
 
@@ -166,8 +246,8 @@ async function sendMessage() {
             if (done) break;
 
             const wasSticky = isSticky;
-
             const chunk = decoder.decode(value);
+
             fullReply += chunk;
 
             if (firstChunk) {
@@ -175,15 +255,13 @@ async function sendMessage() {
                 firstChunk = false;
             }
 
-            botDiv.innerHTML = marked.parse(fullReply);
+            botDiv.innerHTML = renderMarkdown(fullReply);
 
             if (wasSticky) scrollToBottom(true);
         }
 
         if (fullReply.trim()) {
             botDiv.innerHTML = renderMarkdown(fullReply);
-
-            botDiv.querySelectorAll("pre code").forEach(addCopyButton);
 
             history.push({ role: "user", content: text });
             history.push({ role: "assistant", content: fullReply });
@@ -252,76 +330,6 @@ function appendMessage(role, text) {
 }
 
 /* -------------------------
-   Copy Code
-------------------------- */
-function addCopyButton(codeBlock) {
-    if (codeBlock.parentElement.querySelector(".copy-code-btn")) return;
-
-    const btn = document.createElement("button");
-    btn.textContent = "Copy";
-    btn.classList.add("copy-code-btn");
-
-    btn.onclick = () => {
-        navigator.clipboard.writeText(codeBlock.innerText);
-        btn.textContent = "Copied!";
-        setTimeout(() => btn.textContent = "Copy", 1000);
-    };
-
-    codeBlock.parentElement.style.position = "relative";
-    codeBlock.parentElement.appendChild(btn);
-}
-
-/* -------------------------
-   Markdown Parser
-------------------------- */
-function renderMarkdown(text) {
-    const rawHtml = marked.parse(text);
-
-    const cleanHtml = DOMPurify.sanitize(rawHtml);
-
-    const temp = document.createElement("div");
-    temp.innerHTML = cleanHtml;
-
-    temp.querySelectorAll("pre code").forEach(block => {
-        try {
-            const pre = block.parentElement;
-
-            const wrapper = document.createElement("div");
-            wrapper.className = "code-wrapper";
-
-            const header = document.createElement("div");
-            header.className = "code-header";
-
-            let langMatch = block.className.match(/language-(\w+)/);
-            let lang = langMatch ? langMatch[1] : "text";
-
-            const langLabel = document.createElement("span");
-            langLabel.textContent = lang;
-
-            const copyBtn = document.createElement("button");
-            copyBtn.textContent = "Copy";
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(block.innerText);
-                copyBtn.textContent = "Copied!";
-                setTimeout(() => copyBtn.textContent = "Copy", 1000);
-            };
-
-            header.appendChild(langLabel);
-            header.appendChild(copyBtn);
-
-            pre.parentNode.replaceChild(wrapper, pre);
-            wrapper.appendChild(header);
-            wrapper.appendChild(pre);
-
-        } catch (e) {
-            console.warn("Markdown render error:", e);
-        }
-    });
-
-    return temp.innerHTML;
-}
-
-/* -------------------------
    Init
 ------------------------- */
 window.onload = async () => {
@@ -339,6 +347,7 @@ window.onload = async () => {
     stopButton.onclick = stopGeneration;
 
     inputField.addEventListener("input", updateSendButtonState);
+
     inputField.addEventListener("keydown", e => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();

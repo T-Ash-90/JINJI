@@ -123,7 +123,6 @@ body {
   box-shadow: 0 0 0 2px rgba(16,163,127,0.15);
 }
 
-/* New button column */
 #button-column {
   display: flex;
   flex-direction: column;
@@ -131,7 +130,6 @@ body {
   width: 110px;
 }
 
-/* Shared button styles */
 #send-button,
 #stop-button {
   padding: 10px;
@@ -143,25 +141,12 @@ body {
   transition: all 0.2s ease;
 }
 
-/* Send button */
-#send-button {
-  background-color: #10a37f;
-}
+#send-button { background-color: #10a37f; }
+#send-button:hover:enabled { background-color: #0d8f6f; }
 
-#send-button:hover:enabled {
-  background-color: #0d8f6f;
-}
+#stop-button { background-color: #ef4444; }
+#stop-button:hover:enabled { background-color: #dc2626; }
 
-/* Stop button */
-#stop-button {
-  background-color: #ef4444;
-}
-
-#stop-button:hover:enabled {
-  background-color: #dc2626;
-}
-
-/* Disabled state */
 #stop-button:disabled,
 #send-button:disabled {
   background-color: #d1d5db;
@@ -182,41 +167,22 @@ body {
   align-items: center;
 }
 
-.message pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-/* User message styling */
 .user {
   align-self: flex-end;
   background-color: #10a37f;
   color: white;
-  font-size: 19px;
+  font-size: 18px;
   white-space: pre-wrap;
 }
 
-.user .message {
-  display: inline-block;
-  padding: 10px;
-  background-color: #0d8f6f;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(16,163,127,0.25);
-  max-width: 80%;
-  white-space: pre-wrap;
-}
-
-/* Bot message layout */
 .bot {
   display: flex;
   align-items: flex-start;
-  font-size: 19px;
+  font-size: 18px;
   gap: 10px;
   max-width: 80%;
 }
 
-/* Avatar container */
 .avatar {
   width: 60px;
   height: 60px;
@@ -227,15 +193,12 @@ body {
   flex-shrink: 0;
 }
 
-/* Avatar image */
 .avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-/* Bot content bubble */
 .bot-content {
   background-color: #ebebeb;
   padding: 12px;
@@ -244,99 +207,74 @@ body {
   flex: 1;
 }
 
-/* Bot thinking animation */
-.bot .bot-content .thinking {
-    color: #6b7280;
-    font-style: italic;
-}
-
-.bot .bot-content .thinking .dots::after {
-    content: '';
-    display: inline-block;
-    width: 1ch;
-    text-align: left;
-    animation: dots 1s steps(4, end) infinite;
-}
-
-@keyframes dots {
-    0%, 20% { content: ''; }
-    40% { content: '.'; }
-    60% { content: '..'; }
-    80%, 100% { content: '...'; }
-}
-
-/* Bot code block styling */
-.bot .message pre {
-  position: relative;
-  background-color: #4d4d4d;
-  color: #f8f8f2;
-  padding: 10px;
-  border-radius: 6px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 10px;
-}
-
-/* Copy Code Button */
-.bot .copy-code-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #e48200;
-  color: black;
-  font-size: 12px;
-  padding: 5px 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.bot .copy-code-btn:hover {
-  background-color: #b56700;
-}
-
-.bot .copy-code-btn:active {
-  background-color: #e48200;
-}
-
-/* Markdown styling */
+/* -------------------------
+   Markdown Styling
+------------------------- */
 .bot-content h1 { font-size: 22px; margin: 10px 0; }
 .bot-content h2 { font-size: 20px; margin: 8px 0; }
 .bot-content h3 { font-size: 18px; margin: 6px 0; }
+.bot-content p { margin: 6px 0; line-height: 1.5; }
+.bot-content ul { padding-left: 20px; }
+.bot-content li { margin: 4px 0; }
 
-.bot-content p {
-  margin: 6px 0;
-  line-height: 1.5;
-}
-
-.bot-content ul {
-  padding-left: 20px;
-}
-
-.bot-content li {
-  margin: 4px 0;
-}
-
-/* Code blocks */
-pre {
-  background: #4d4d4d;
-  color: #f8f8f2;
-  padding: 10px;
+/* -------------------------
+   Code Block System (Highlight.js + Atom One Dark)
+------------------------- */
+.code-wrapper {
+  margin-top: 10px;
   border-radius: 6px;
-  overflow-x: auto;
+  overflow: hidden;
+  background-color: #282c34; /* Atom One Dark bg */
 }
 
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #21252b;
+  color: #ddd;
+  font-size: 12px;
+  padding: 6px 10px;
+  font-family: monospace;
+}
+
+.code-header button {
+  background-color: #e48200;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.code-header button:hover {
+  background-color: #b56700;
+}
+
+.code-wrapper pre {
+  margin: 0;
+  padding: 10px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  background: none; /* let wrapper bg show */
+  color: unset;    /* allow hljs colors */
+}
+
+/* Highlight.js base styling */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  background: none; /* wrapper background shows */
+  color: unset;     /* use hljs colors */
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Inline code */
 code {
   background: #dddddd;
   padding: 2px 4px;
   border-radius: 4px;
   font-family: monospace;
-}
-
-pre code {
-  background: none;
 }
