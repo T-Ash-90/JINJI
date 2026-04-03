@@ -4,6 +4,13 @@
   box-shadow: var(--shadow-sm);
 }
 
+#textlogo {
+  max-width: 150px;
+  margin-bottom: var(--space-lg);
+  border-radius: 15px;
+  transform: scale(1.1);
+}
+
 #logo {
   max-width: 150px;
   margin-bottom: var(--space-lg);
