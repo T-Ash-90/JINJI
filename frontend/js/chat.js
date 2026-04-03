@@ -1,217 +1,32 @@
-let history = [];
-let currentController = null;
-let inputField;
-let sendButton;
-let stopButton;
-let modelSelector;
-let DEFAULT_SYSTEM_PROMPT = "";
-let isSticky = true;
-
 /* -------------------------
-  Utilities
+   Chat Logic
 ------------------------- */
 
-marked.setOptions({
-    breaks: true,
-    gfm: true
-});
+import {
+    history,
+    currentController,
+    DEFAULT_SYSTEM_PROMPT,
+    isSticky,
+    inputField,
+    modelSelector,
+    setController
+} from "./state.js";
 
-async function copyToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            console.warn("Clipboard API failed, falling back...", err);
-        }
-    }
-
-    try {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-
-        const success = document.execCommand("copy");
-        document.body.removeChild(textarea);
-
-        return success;
-    } catch (err) {
-        console.error("Fallback copy failed:", err);
-        return false;
-    }
-}
+import { renderMarkdown } from "./markdown.js";
+import { setGeneratingState } from "./ui.js";
 
 /* -------------------------
-   Markdown Plugin System
+   Scroll
 ------------------------- */
-const markdownPlugins = [];
 
-function registerMarkdownPlugin(pluginFn) {
-    markdownPlugins.push(pluginFn);
-}
-
-function applyMarkdownPlugins(container) {
-    markdownPlugins.forEach(plugin => {
-        try {
-            plugin(container);
-        } catch (e) {
-            console.warn("Plugin error:", e);
-        }
-    });
-}
-
-/* -------------------------
-   Markdown Renderer
-------------------------- */
-function renderMarkdown(text) {
-    const rawHtml = marked.parse(text);
-    const cleanHtml = DOMPurify.sanitize(rawHtml);
-
-    const container = document.createElement("div");
-    container.innerHTML = cleanHtml;
-
-    applyMarkdownPlugins(container);
-
-    return container.innerHTML;
-}
-
-/* -------------------------
-   Markdown Plug-In
-------------------------- */
-registerMarkdownPlugin(container => {
-    container.querySelectorAll("pre code").forEach(block => {
-        if (block.parentElement.classList.contains("code-wrapper")) return;
-
-        const pre = block.parentElement;
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "code-wrapper";
-
-        const header = document.createElement("div");
-        header.className = "code-header";
-
-        let langMatch = block.className.match(/language-(\w+)/);
-        let lang = langMatch ? langMatch[1] : "text";
-
-        const langLabel = document.createElement("span");
-        langLabel.textContent = lang;
-
-        const copyBtn = document.createElement("button");
-        copyBtn.className = "copy-btn";
-        copyBtn.textContent = "Copy";
-
-        header.appendChild(langLabel);
-        header.appendChild(copyBtn);
-
-        pre.parentNode.replaceChild(wrapper, pre);
-        wrapper.appendChild(header);
-        wrapper.appendChild(pre);
-
-        block.classList.add("hljs");
-        hljs.highlightElement(block);
-    });
-});
-
-registerMarkdownPlugin(container => {
-    container.querySelectorAll("a").forEach(a => {
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-    });
-});
-
-/* -------------------------
-   Load default prompt
-------------------------- */
-async function loadDefaultPrompt() {
-    try {
-        const res = await fetch("/assets/prompt.txt");
-        if (!res.ok) throw new Error();
-
-        DEFAULT_SYSTEM_PROMPT = (await res.text()).trim();
-        console.log("✅ Loaded system prompt");
-
-    } catch {
-        console.warn("⚠️ Using fallback prompt");
-        DEFAULT_SYSTEM_PROMPT =
-            "You are Jinji, a helpful female feline assistant that happens to also be a cat.";
-    }
-}
-
-/* -------------------------
-   UI Helpers
-------------------------- */
-function isModelSelected() {
-    return modelSelector.value && modelSelector.value.trim() !== "";
-}
-
-function hasInputText() {
-    return inputField.value.trim().length > 0;
-}
-
-function updateSendButtonState() {
-    const hasModel = isModelSelected();
-    const hasText = hasInputText();
-    const isBusy = currentController !== null;
-
-    sendButton.disabled = !(hasModel && hasText) || isBusy;
-}
-
-function setGeneratingState(isGenerating) {
-    stopButton.disabled = !isGenerating;
-    inputField.disabled = isGenerating;
-    updateSendButtonState();
-}
-
-/* -------------------------
-   Load Models
-------------------------- */
-async function loadModels() {
-    try {
-        const res = await fetch("http://localhost:8000/models");
-        const data = await res.json();
-
-        modelSelector.innerHTML = "";
-
-        const def = document.createElement("option");
-        def.textContent = "-- Select a model --";
-        def.value = "";
-        def.disabled = true;
-        def.selected = true;
-        modelSelector.appendChild(def);
-
-        if (data.status === "ok") {
-            data.models.forEach(model => {
-                const opt = document.createElement("option");
-                opt.value = model;
-                opt.textContent = model;
-                modelSelector.appendChild(opt);
-            });
-        }
-
-    } catch {
-        modelSelector.innerHTML = "<option>Error loading models</option>";
-    }
-
-    updateSendButtonState();
-}
-
-/* -------------------------
-   Scroll Logic
-------------------------- */
-function scrollToBottom(force = false) {
+export function scrollToBottom(force = false) {
     const box = document.getElementById("chat-box");
     if (isSticky || force) {
         box.scrollTop = box.scrollHeight;
     }
 }
 
-function setupScrollTracking() {
+export function setupScrollTracking() {
     const box = document.getElementById("chat-box");
 
     box.addEventListener("scroll", () => {
@@ -225,9 +40,50 @@ function setupScrollTracking() {
 }
 
 /* -------------------------
-   Send Message
+   Messages
 ------------------------- */
-async function sendMessage() {
+
+export function appendMessage(role, text) {
+    const box = document.getElementById("chat-box");
+    const wasSticky = isSticky;
+
+    const div = document.createElement("div");
+    div.classList.add("message", role);
+
+    if (role === "bot") {
+        const avatar = document.createElement("div");
+        avatar.classList.add("avatar");
+
+        const img = document.createElement("img");
+        img.src = "assets/images/jinji.png";
+        img.classList.add("avatar-img");
+
+        avatar.appendChild(img);
+
+        const content = document.createElement("div");
+        content.classList.add("bot-content");
+        content.innerHTML = text;
+
+        div.appendChild(avatar);
+        div.appendChild(content);
+        box.appendChild(div);
+
+        if (wasSticky) scrollToBottom(true);
+        return content;
+    } else {
+        div.textContent = text;
+        box.appendChild(div);
+
+        if (wasSticky) scrollToBottom(true);
+        return div;
+    }
+}
+
+/* -------------------------
+   Send / Stop
+------------------------- */
+
+export async function sendMessage() {
     if (!history.length || history[0].role !== "system") {
         history.unshift({ role: "system", content: DEFAULT_SYSTEM_PROMPT });
     }
@@ -254,7 +110,8 @@ async function sendMessage() {
         if (isSticky) scrollToBottom(true);
     }, 500);
 
-    currentController = new AbortController();
+    const controller = new AbortController();
+    setController(controller);
     setGeneratingState(true);
 
     let fullReply = "";
@@ -264,7 +121,7 @@ async function sendMessage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: text, history, model }),
-            signal: currentController.signal
+            signal: controller.signal
         });
 
         const reader = res.body.getReader();
@@ -308,115 +165,12 @@ async function sendMessage() {
         }
     } finally {
         clearInterval(thinkingInterval);
-        currentController = null;
+        setController(null);
         setGeneratingState(false);
         inputField.focus();
     }
 }
 
-/* -------------------------
-   Stop Generation
-------------------------- */
-function stopGeneration() {
+export function stopGeneration() {
     if (currentController) currentController.abort();
 }
-
-/* -------------------------
-   Message Rendering
-------------------------- */
-function appendMessage(role, text) {
-    const box = document.getElementById("chat-box");
-    const wasSticky = isSticky;
-
-    const div = document.createElement("div");
-    div.classList.add("message", role);
-
-    if (role === "bot") {
-        const avatar = document.createElement("div");
-        avatar.classList.add("avatar");
-
-        const img = document.createElement("img");
-        img.src = "assets/images/jinji.png";
-        img.classList.add("avatar-img");
-
-        avatar.appendChild(img);
-
-        const content = document.createElement("div");
-        content.classList.add("bot-content");
-        content.innerHTML = text;
-
-        div.appendChild(avatar);
-        div.appendChild(content);
-        box.appendChild(div);
-
-        if (wasSticky) scrollToBottom(true);
-        return content;
-    } else {
-        div.textContent = text;
-        box.appendChild(div);
-
-        if (wasSticky) scrollToBottom(true);
-        return div;
-    }
-}
-
-/* -------------------------
-   Init
-------------------------- */
-window.onload = async () => {
-    inputField = document.getElementById("input");
-    sendButton = document.getElementById("send-button");
-    stopButton = document.getElementById("stop-button");
-    modelSelector = document.getElementById("model-selector");
-
-    setupScrollTracking();
-
-    await loadDefaultPrompt();
-    loadModels();
-
-    sendButton.onclick = sendMessage;
-    stopButton.onclick = stopGeneration;
-
-    inputField.addEventListener("input", updateSendButtonState);
-
-    inputField.addEventListener("keydown", e => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    modelSelector.addEventListener("change", () => {
-        updateSendButtonState();
-
-        const previousMessages = history.filter(m => m.role !== "system");
-
-        history = [
-            { role: "system", content: DEFAULT_SYSTEM_PROMPT },
-            ...previousMessages
-        ];
-    });
-
-    updateSendButtonState();
-};
-
-document.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".copy-btn");
-    if (!btn) return;
-
-    const wrapper = btn.closest(".code-wrapper");
-    if (!wrapper) return;
-
-    const codeBlock = wrapper.querySelector("code");
-    if (!codeBlock) return;
-
-    const code = codeBlock.textContent;
-
-    const success = await copyToClipboard(code);
-
-    btn.textContent = success ? "Copied!" : "Failed!";
-
-    setTimeout(() => {
-        btn.textContent = "Copy";
-    }, 1200);
-});
