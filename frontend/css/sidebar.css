@@ -9,11 +9,14 @@
   margin-bottom: var(--space-lg);
   border-radius: 15px;
   transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
 }
 
 #logo {
   max-width: 150px;
   margin-bottom: var(--space-lg);
+  border-radius: 100px;
+  box-shadow: var(--shadow-lg);
 }
 
 #model-selector-container {
@@ -42,6 +45,6 @@
 #model-selector:hover,
 #model-selector:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 5px rgba(16,163,127,0.3);
+  box-shadow: var(--shadow-md);
   outline: none;
 }

@@ -12,7 +12,7 @@
 #input:focus {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(16,163,127,0.15);
+  box-shadow: var(--shadow-md);
 }
 
 /* Buttons */
