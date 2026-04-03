@@ -6,13 +6,13 @@ import re
 # Log levels and styles
 # -------------------------
 LEVEL_STYLES = {
-    "ERROR": ("❌", "\033[91m"),   # Red
-    "SUCCESS": ("✅", "\033[92m"), # Green
-    "SERVER": ("🚀", "\033[96m"),  # Cyan
-    "MODEL": ("📦", "\033[95m"),   # Magenta
-    "SYSTEM": ("⚙️", "\033[93m"),  # Yellow
-    "API": ("🔄", "\033[94m"),     # Blue
-    "INFO": ("ℹ️", "\033[97m"),    # White
+    "ERROR": ("❌", "\033[91m"),
+    "SUCCESS": ("✅", "\033[92m"),
+    "SERVER": ("🚀", "\033[96m"),
+    "MODEL": ("📦", "\033[95m"),
+    "SYSTEM": ("⚙️", "\033[93m"),
+    "API": ("🔄", "\033[94m"),
+    "INFO": ("ℹ️", "\033[97m"),
 }
 
 RESET_COLOR = "\033[0m"
@@ -58,7 +58,6 @@ def normalize_fastapi_line(line: str):
     if " - " in line and ("POST" in line or "GET" in line):
         return line, "API"
     if line.startswith("INFO:") or line.startswith("WARNING:") or line.startswith("ERROR:"):
-        # Remove "INFO: 127.0.0.1 ..." prefix
         parts = line.split(" - ", 1)
         if len(parts) == 2:
             return parts[1].strip(), "API"
@@ -98,7 +97,6 @@ def setup_logging():
     handler = InterceptHandler()
     logging.basicConfig(handlers=[handler], level=logging.INFO, force=True)
 
-    # override uvicorn logs
     for name in ["uvicorn", "uvicorn.error", "uvicorn.access"]:
         logger = logging.getLogger(name)
         logger.handlers = [handler]
