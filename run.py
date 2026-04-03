@@ -12,6 +12,7 @@ OLLAMA_URL = "http://localhost:11434"
 ollama_process = None
 OLLAMA_PIPE = None
 started_ollama = False
+uvicorn_server = None
 
 # -------------------------
 # Ollama helpers
@@ -33,6 +34,7 @@ def start_ollama():
         stderr=subprocess.STDOUT,
         text=True,
         bufsize=1,
+        start_new_session=True,
     )
     OLLAMA_PIPE = process.stdout
     return process
@@ -51,20 +53,45 @@ def stream_ollama_output():
     if not OLLAMA_PIPE:
         return
     for raw_line in OLLAMA_PIPE:
-        if not raw_line:
-            continue
-        process_log_line(raw_line, source="OLLAMA")
+        if raw_line:
+            process_log_line(raw_line, source="OLLAMA")
+
+# -------------------------
+# FastAPI helpers
+# -------------------------
+def start_fastapi():
+    global uvicorn_server
+
+    log("Starting FastAPI server...", "SERVER", "APP")
+    config = uvicorn.Config(
+        "backend.server:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=False,
+    )
+    uvicorn_server = uvicorn.Server(config)
+    threading.Thread(target=uvicorn_server.run, daemon=True).start()
 
 # -------------------------
 # Shutdown handling
 # -------------------------
 def cleanup():
-    global ollama_process, started_ollama
+    global ollama_process, started_ollama, uvicorn_server
     log("Shutting down...", "SERVER", "APP")
+
+    if uvicorn_server and uvicorn_server.started:
+        log("Stopping FastAPI...", "SERVER", "APP")
+        uvicorn_server.should_exit = True
+
     if started_ollama and ollama_process:
         log("Stopping Ollama (owned by this process)...", "SERVER", "APP")
-        ollama_process.terminate()
         try:
+            if hasattr(ollama_process, "pid"):
+                try:
+                    import os
+                    os.killpg(os.getpgid(ollama_process.pid), signal.SIGTERM)
+                except Exception:
+                    ollama_process.terminate()
             ollama_process.wait(timeout=5)
             log("Ollama stopped.", "SERVER", "APP")
         except subprocess.TimeoutExpired:
@@ -90,25 +117,17 @@ if __name__ == "__main__":
             ollama_process = start_ollama()
             started_ollama = True
 
-            threading.Thread(
-                target=stream_ollama_output,
-                daemon=True
-            ).start()
+            threading.Thread(target=stream_ollama_output, daemon=True).start()
 
             if not wait_for_ollama():
                 raise RuntimeError("Ollama failed to start")
         else:
             log("Ollama already running.", "SERVER", "APP")
 
-        log("Dynamic models will be selected by the frontend. Skipping model pull/warmup.", "MODEL", "APP")
-        log("Starting FastAPI server...", "SERVER", "APP")
+        start_fastapi()
 
-        uvicorn.run(
-            "backend.server:app",
-            host="127.0.0.1",
-            port=8000,
-            reload=False,
-        )
+        while True:
+            time.sleep(1)
 
     finally:
         cleanup()

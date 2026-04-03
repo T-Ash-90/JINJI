@@ -33,6 +33,11 @@ furnished to do so, subject to the following conditions:
      © Alexander Gugel
      https://github.com/highlightjs/highlight.js/tree/main/src/styles
 
+   - Electron | MIT License
+     Included as a CSS theme for Highlight.js syntax highlighting
+     © Electron contributors
+     https://github.com/electron/electron
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

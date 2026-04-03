@@ -11,3 +11,4 @@ venv/
 *.swp
 *.log
 *.bin
+node_modules/
