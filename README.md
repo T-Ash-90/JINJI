@@ -1,15 +1,15 @@
 # JINJI - A Friendly Feline Chatbot and Assistant
 
-Hi! I am  **JINJI**: your helpful cat companion and friendly feline AI assistant!  
-I’m designed as a locally hosted interface that connects to local LLMs, so you can use me without needing an internet connection.
+JINJI is a locally hosted chatbot interface designed to work with local LLMs. It provides a simple, interactive browser-based experience without requiring an internet connection.
 
 ---
 
 ## Features
 
-- Fun browsing experience: A browser-based interactive session.
-- Offline playtime! Everything runs locally!
-- Play with different LLM models that are installed on your machine. Choose a model you'd prefer to use for whatever task you need.
+- Browser-based chat interface with a clean and interactive UI
+- Fully local execution with no external API calls
+- Support for multiple locally installed LLMs with Ollama: https://ollama.com/
+- Easy model switching depending on the task
 
 ---
 
@@ -32,7 +32,7 @@ I’m designed as a locally hosted interface that connects to local LLMs, so you
 
 ## Architecture Overview
 
-I run entirely on your local machine:
+The application runs entirely on the local machine:
 
 - The frontend provides a browser-based chat interface
 - The FastAPI backend handles requests and model communication
@@ -48,15 +48,15 @@ This design ensures:
 
 ## Requirements
 
-- Ollama https://ollama.com/ (because who needs to fetch when you can download models?)
-- Python 3.x+ – Make sure it's up-to-date so we don't accidentally step on any toes.
-- All my favorite toys and tools listed in requirements.txt.
+- Ollama https://ollama.com/
+- Python 3
+- Dependencies listed in requirements.txt
 
 ---
 
 ## Installation
 
-1. Clone this kitty's play area:
+1. Clone the repository:
 
 ```bash
 git clone <your-repo-url>
@@ -75,22 +75,23 @@ pip install -r requirements.txt
 ollama pull <model-name>
 ```
 
-> I work great with phi4-mini:3.8b
+> JINJI works great with phi4-mini:3.8b
 
 ---
 
 ## Usage
 
-You can run me using the provided Python launcher:
+Run the application using the provided launcher:
 ```bash
 python3 run.py
 ```
 
-I'll take care of all the setup so you don't have to worry about me stepping on your toes (figuratively speaking):
+The launcher will:
 
-- Start Ollama if it is not already running.
-- Launch the FastAPI backend (uvicorn) serving the frontend.
-- Cleanly terminate Ollama if it was started by the script on shutdown.
+- Start Ollama if it is not already running
+- Launch the FastAPI backend (uvicorn)
+- Serve the frontend interface
+- Shut down Ollama if it was started by the script
 
 After the server is running, open your browser at:
 
