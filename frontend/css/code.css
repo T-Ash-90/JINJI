@@ -1,0 +1,37 @@
+.code-wrapper {
+  margin-top: var(--space-md);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-code-bg);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-code-header);
+  color: #ddd;
+  font-size: 12px;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+}
+
+.code-header button {
+  background-color: var(--color-code-accent);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.code-wrapper pre {
+  margin: 0;
+  padding: 10px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.hljs {
+  font-family: var(--font-mono);
+  font-size: 14px;
+}

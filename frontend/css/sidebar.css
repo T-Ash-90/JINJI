@@ -1,0 +1,40 @@
+#sidebar {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+#logo {
+  max-width: 150px;
+  margin-bottom: var(--space-lg);
+}
+
+#model-selector-container {
+  width: 100%;
+  text-align: center;
+}
+
+#model-selector-container label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+#model-selector {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#model-selector:hover,
+#model-selector:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 5px rgba(16,163,127,0.3);
+  outline: none;
+}
