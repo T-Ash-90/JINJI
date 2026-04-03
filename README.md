@@ -50,7 +50,7 @@ This design ensures:
 
 ## Requirements
 
-- Ollama https://ollama.com/
+- [Ollama](https://ollama.com/) & downloaded LLM models *([phi4-mini:3.8b](https://ollama.com/library/phi4-mini) recommended)*
 - Python 3
 - Node.js and npm (for Electron app)
 - Dependencies listed in requirements.txt
@@ -78,7 +78,7 @@ pip install -r requirements.txt
 ollama pull <model-name>
 ```
 
-> JINJI works great with phi4-mini:3.8b
+> *JINJI works great with phi4-mini:3.8b*
 
 4. Set up the Electron App in the root directory:
 
@@ -103,11 +103,7 @@ The launcher will:
 - Open the Electron desktop window pointing to the local server (http://localhost:8000).
 - Automatically handle backend startup, waiting for readiness, and shutdown when the window is closed.
 
-2. You can also create a convenient .desktop launcher icon to easily launch the application from your desktop environment. Simply follow these steps:
-
-- Download or create a .desktop file (example provided below).
-- Save it to your ~/.local/share/applications/ directory.
-- You can then launch JINJI directly from your desktop environment.
+2. You can also create a convenient .desktop launcher icon to launch the application from your desktop environment. Simply create a .desktop file (example below) then save it to your ~/.local/share/applications/ directory.
 
 ```bash
 [Desktop Entry]
