@@ -6,7 +6,6 @@ import {
     history,
     currentController,
     DEFAULT_SYSTEM_PROMPT,
-    isSticky,
     inputField,
     modelSelector,
     setController
@@ -16,27 +15,16 @@ import { renderMarkdown } from "./markdown.js";
 import { setGeneratingState } from "./ui.js";
 
 /* -------------------------
-   Scroll
+   Scroll Helpers
 ------------------------- */
 
-export function scrollToBottom(force = false) {
-    const box = document.getElementById("chat-box");
-    if (isSticky || force) {
-        box.scrollTop = box.scrollHeight;
-    }
+function shouldAutoScroll(box, threshold = 5) {
+    return box.scrollTop + box.clientHeight >= box.scrollHeight - threshold;
 }
 
-export function setupScrollTracking() {
+export function scrollToBottom() {
     const box = document.getElementById("chat-box");
-
-    box.addEventListener("scroll", () => {
-        const threshold = 5;
-
-        const atBottom =
-            box.scrollTop + box.clientHeight >= box.scrollHeight - threshold;
-
-        isSticky = atBottom;
-    });
+    box.scrollTop = box.scrollHeight;
 }
 
 /* -------------------------
@@ -45,7 +33,7 @@ export function setupScrollTracking() {
 
 export function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
-    const wasSticky = isSticky;
+    const wasAtBottom = shouldAutoScroll(box);
 
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -68,13 +56,13 @@ export function appendMessage(role, text) {
         div.appendChild(content);
         box.appendChild(div);
 
-        if (wasSticky) scrollToBottom(true);
+        if (wasAtBottom) scrollToBottom();
         return content;
     } else {
         div.textContent = text;
         box.appendChild(div);
 
-        if (wasSticky) scrollToBottom(true);
+        if (wasAtBottom) scrollToBottom();
         return div;
     }
 }
@@ -104,10 +92,13 @@ export async function sendMessage() {
 
     let dots = 0;
     const thinkingInterval = setInterval(() => {
+        const box = document.getElementById("chat-box");
+
         dots = (dots + 1) % 4;
         botDiv.innerHTML =
             `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
-        if (isSticky) scrollToBottom(true);
+
+        if (shouldAutoScroll(box)) scrollToBottom();
     }, 500);
 
     const controller = new AbortController();
@@ -133,9 +124,10 @@ export async function sendMessage() {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const wasSticky = isSticky;
-            const chunk = decoder.decode(value);
+            const box = document.getElementById("chat-box");
+            const wasAtBottom = shouldAutoScroll(box);
 
+            const chunk = decoder.decode(value);
             fullReply += chunk;
 
             if (firstChunk) {
@@ -145,7 +137,7 @@ export async function sendMessage() {
 
             botDiv.innerHTML = renderMarkdown(fullReply);
 
-            if (wasSticky) scrollToBottom(true);
+            if (wasAtBottom) scrollToBottom();
         }
 
         if (fullReply.trim()) {

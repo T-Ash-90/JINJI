@@ -10,7 +10,7 @@ import {
 } from "./state.js";
 
 import { updateSendButtonState } from "./ui.js";
-import { sendMessage, stopGeneration, setupScrollTracking } from "./chat.js";
+import { sendMessage, stopGeneration } from "./chat.js";
 import { copyToClipboard } from "./utils.js";
 
 /* -------------------------
@@ -74,8 +74,6 @@ window.onload = async () => {
     };
 
     setElements(elements);
-
-    setupScrollTracking();
 
     await loadDefaultPrompt();
     loadModels();
