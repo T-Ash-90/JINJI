@@ -5,6 +5,8 @@ import uvicorn
 import signal
 import sys
 import threading
+import atexit
+import os
 from backend.logs import process_log_line, setup_logging, log
 
 OLLAMA_URL = "http://localhost:11434"
@@ -13,6 +15,7 @@ ollama_process = None
 OLLAMA_PIPE = None
 started_ollama = False
 uvicorn_server = None
+stop_event = threading.Event()
 
 # -------------------------
 # Ollama helpers
@@ -26,7 +29,6 @@ def is_ollama_running():
 
 def start_ollama():
     global OLLAMA_PIPE
-
     log("Starting Ollama...", "SERVER", "APP")
     process = subprocess.Popen(
         ["ollama", "serve"],
@@ -61,7 +63,6 @@ def stream_ollama_output():
 # -------------------------
 def start_fastapi():
     global uvicorn_server
-
     log("Starting FastAPI server...", "SERVER", "APP")
     config = uvicorn.Config(
         "backend.server:app",
@@ -73,7 +74,7 @@ def start_fastapi():
     threading.Thread(target=uvicorn_server.run, daemon=True).start()
 
 # -------------------------
-# Shutdown handling
+# Cleanup
 # -------------------------
 def cleanup():
     global ollama_process, started_ollama, uvicorn_server
@@ -86,12 +87,7 @@ def cleanup():
     if started_ollama and ollama_process:
         log("Stopping Ollama (owned by this process)...", "SERVER", "APP")
         try:
-            if hasattr(ollama_process, "pid"):
-                try:
-                    import os
-                    os.killpg(os.getpgid(ollama_process.pid), signal.SIGTERM)
-                except Exception:
-                    ollama_process.terminate()
+            os.killpg(os.getpgid(ollama_process.pid), signal.SIGTERM)
             ollama_process.wait(timeout=5)
             log("Ollama stopped.", "SERVER", "APP")
         except subprocess.TimeoutExpired:
@@ -100,7 +96,13 @@ def cleanup():
     else:
         log("Ollama was not started by this script, leaving it running.", "INFO", "APP")
 
+atexit.register(cleanup)
+
+# -------------------------
+# Signal handling
+# -------------------------
 def signal_handler(sig, frame):
+    stop_event.set()
     cleanup()
     sys.exit(0)
 
@@ -116,7 +118,6 @@ if __name__ == "__main__":
         if not is_ollama_running():
             ollama_process = start_ollama()
             started_ollama = True
-
             threading.Thread(target=stream_ollama_output, daemon=True).start()
 
             if not wait_for_ollama():
@@ -126,8 +127,8 @@ if __name__ == "__main__":
 
         start_fastapi()
 
-        while True:
-            time.sleep(1)
+        while not stop_event.is_set():
+            stop_event.wait(timeout=1)
 
     finally:
         cleanup()

@@ -1,5 +1,5 @@
 const { app, BrowserWindow } = require('electron');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
 const http = require('http');
 
@@ -9,7 +9,15 @@ let backendProcess;
 // Start backend using .venv
 // -------------------------
 function startBackend() {
-  const python = path.join(__dirname, '.venv', 'bin', 'python');
+  let python;
+
+  if (process.platform === 'win32') {
+    // Windows
+    python = path.join(__dirname, '.venv', 'Scripts', 'python.exe');
+  } else {
+    // macOS / Linux
+    python = path.join(__dirname, '.venv', 'bin', 'python');
+  }
 
   const script = path.join(__dirname, 'run.py');
 
@@ -24,20 +32,22 @@ function startBackend() {
 }
 
 // -------------------------
-// Stop backend (kill full process group)
+// Stop backend (kill full process tree)
 // -------------------------
 function stopBackend() {
-  if (backendProcess) {
-    console.log('Stopping backend...');
-    try {
-      if (process.platform === 'win32') {
-        backendProcess.kill('SIGTERM');
-      } else {
-        process.kill(-backendProcess.pid, 'SIGTERM');
-      }
-    } catch (err) {
-      console.error('Error stopping backend:', err);
+  if (!backendProcess) return;
+
+  console.log('Stopping backend...');
+  try {
+    if (process.platform === 'win32') {
+      // Windows: kill process tree using taskkill
+      execSync(`taskkill /PID ${backendProcess.pid} /T /F`);
+    } else {
+      // Unix/macOS: kill process group
+      process.kill(-backendProcess.pid, 'SIGTERM');
     }
+  } catch (err) {
+    console.error('Error stopping backend:', err);
   }
 }
 
@@ -46,7 +56,6 @@ function stopBackend() {
 // -------------------------
 function waitForBackend(url, timeout = 30000, interval = 500) {
   const startTime = Date.now();
-
   return new Promise((resolve, reject) => {
     const check = () => {
       http.get(url, () => resolve(true)).on('error', () => {
@@ -102,9 +111,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('before-quit', () => {
-  stopBackend();
-});
+app.on('before-quit', () => stopBackend());
 
 process.on('SIGINT', stopBackend);
 process.on('SIGTERM', stopBackend);

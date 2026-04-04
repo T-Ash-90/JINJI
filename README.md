@@ -65,14 +65,19 @@ This design ensures:
 git clone <your-repo-url>
 cd <repo-directory>
 ```
+2. Create a virtual Python environment named .venv in the root directory: (required)
 
-2. Install Python dependencies:
+```bash
+python3 -m venv .venv
+```
+
+3. Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Ensure Ollama is installed and models are downloaded:
+4. Ensure Ollama is installed and models are downloaded:
 
 ```bash
 ollama pull <model-name>
@@ -80,7 +85,7 @@ ollama pull <model-name>
 
 > *JINJI works great with phi4-mini:3.8b*
 
-4. Set up the Electron App in the root directory:
+5. Set up the Electron App in the root directory:
 
 ```bash
 npm install
