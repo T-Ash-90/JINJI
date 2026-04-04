@@ -1,21 +1,21 @@
 import subprocess
-import time
-import requests
-import uvicorn
 import signal
 import sys
 import threading
 import atexit
 import os
+import requests
+import time
 from backend.logs import process_log_line, setup_logging, log
+import uvicorn
 
 OLLAMA_URL = "http://localhost:11434"
-
 ollama_process = None
 OLLAMA_PIPE = None
 started_ollama = False
 uvicorn_server = None
 stop_event = threading.Event()
+_cleanup_done = False
 
 # -------------------------
 # Ollama helpers
@@ -30,14 +30,27 @@ def is_ollama_running():
 def start_ollama():
     global OLLAMA_PIPE
     log("Starting Ollama...", "SERVER", "APP")
-    process = subprocess.Popen(
-        ["ollama", "serve"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1,
-        start_new_session=True,
-    )
+
+    if os.name == "nt":  # Windows
+        creation_flags = subprocess.CREATE_NEW_PROCESS_GROUP
+        process = subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            creationflags=creation_flags,
+        )
+    else:  # Unix / macOS
+        process = subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            start_new_session=True,
+        )
+
     OLLAMA_PIPE = process.stdout
     return process
 
@@ -77,18 +90,30 @@ def start_fastapi():
 # Cleanup
 # -------------------------
 def cleanup():
-    global ollama_process, started_ollama, uvicorn_server
+    global ollama_process, started_ollama, uvicorn_server, _cleanup_done
+
+    if _cleanup_done:
+        return
+    _cleanup_done = True
+
     log("Shutting down...", "SERVER", "APP")
 
+    # Stop FastAPI
     if uvicorn_server and uvicorn_server.started:
         log("Stopping FastAPI...", "SERVER", "APP")
         uvicorn_server.should_exit = True
 
+    # Stop Ollama if we started it
     if started_ollama and ollama_process:
         log("Stopping Ollama (owned by this process)...", "SERVER", "APP")
         try:
-            os.killpg(os.getpgid(ollama_process.pid), signal.SIGTERM)
-            ollama_process.wait(timeout=5)
+            if os.name == "nt":  # Windows
+                ollama_process.send_signal(signal.CTRL_BREAK_EVENT)
+            else:
+                # Unix / macOS: kill process group
+                os.killpg(os.getpgid(ollama_process.pid), signal.SIGTERM)
+
+            ollama_process.wait(timeout=10)
             log("Ollama stopped.", "SERVER", "APP")
         except subprocess.TimeoutExpired:
             log("Ollama did not stop in time, killing...", "ERROR", "APP")
@@ -96,18 +121,17 @@ def cleanup():
     else:
         log("Ollama was not started by this script, leaving it running.", "INFO", "APP")
 
-atexit.register(cleanup)
-
 # -------------------------
 # Signal handling
 # -------------------------
 def signal_handler(sig, frame):
+    log(f"Received signal {sig}, shutting down...", "SERVER", "APP")
     stop_event.set()
-    cleanup()
-    sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+
+atexit.register(cleanup)
 
 # -------------------------
 # Main
