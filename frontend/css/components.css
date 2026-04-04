@@ -22,6 +22,7 @@
   font-size: 15px;
   border: none;
   border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -48,6 +49,8 @@
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  border:2px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
 }
 
 .avatar-img {
