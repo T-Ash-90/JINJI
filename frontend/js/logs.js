@@ -1,36 +1,30 @@
 /* -------------------------
-   Logging Utilities
+   Logging Utility
 ------------------------- */
 
-const DEBUG = true;
+import { DEFAULT_SYSTEM_PROMPT } from "./state.js";
 
-export function logChatRequest({ model, message, history }) {
-    if (!DEBUG) return;
+export function logChatDebug({ context = "", userInput = "" }) {
+    const systemTokens = estimateTokens(DEFAULT_SYSTEM_PROMPT);
+    const contextTokens = estimateTokens(context);
+    const userTokens = estimateTokens(userInput);
+    const totalTokens = systemTokens + contextTokens + userTokens;
 
-    const systemMessages = history.filter(m => m.role === "system");
+    console.groupCollapsed("%c[Chat Debug]", "color: #0a0; font-weight: bold;");
 
-    console.group("[Chat Request Debug]");
+    console.log("[System Prompt]:", DEFAULT_SYSTEM_PROMPT);
+    console.log("[Context]:", context);
+    console.log("[User Input]:", userInput);
 
-    console.log("🧠 Model:", model);
-
-    systemMessages.forEach((msg, i) => {
-        if (msg.content.startsWith("Here is the code context:")) {
-            console.log(`📎 Context Prompt [${i}]`);
-            console.log(msg.content);
-        } else {
-            console.log(`⚙️ System Prompt [${i}]`);
-            console.log(msg.content);
-        }
-    });
-
-    console.log("👤 User Input:");
-    console.log(message);
-
-    console.log("📦 Full Payload Preview:", {
-        message,
-        history,
-        model
-    });
+    console.log("[Token Estimate] System:", systemTokens);
+    console.log("[Token Estimate] Context:", contextTokens);
+    console.log("[Token Estimate] User input:", userTokens);
+    console.log("[Token Estimate] Total tokens:", totalTokens);
 
     console.groupEnd();
+}
+
+function estimateTokens(text) {
+    if (!text) return 0;
+    return Math.ceil(text.length / 4);
 }

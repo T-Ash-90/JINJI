@@ -1,5 +1,5 @@
 /* -------------------------
-   Chat Logic
+   Chat Logic with Debug & Tokens
 ------------------------- */
 
 import {
@@ -14,12 +14,11 @@ import {
 import { renderMarkdown } from "./markdown.js";
 import { setGeneratingState } from "./ui.js";
 import { getContext } from "./context.js";
-import { logChatRequest } from "./logs.js";
+import { logChatDebug } from "./logs.js";
 
 /* -------------------------
    Scroll Helpers
 ------------------------- */
-
 function shouldAutoScroll(box, threshold = 5) {
     return box.scrollTop + box.clientHeight >= box.scrollHeight - threshold;
 }
@@ -32,7 +31,6 @@ export function scrollToBottom() {
 /* -------------------------
    Messages
 ------------------------- */
-
 export function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
     const wasAtBottom = shouldAutoScroll(box);
@@ -72,7 +70,6 @@ export function appendMessage(role, text) {
 /* -------------------------
    Send / Stop
 ------------------------- */
-
 export async function sendMessage() {
     if (!history.length || history[0].role !== "system") {
         history.unshift({ role: "system", content: DEFAULT_SYSTEM_PROMPT });
@@ -99,6 +96,17 @@ export async function sendMessage() {
         console.error("Failed to fetch context:", err);
     }
 
+    // -------------------------
+    // Log token estimates
+    // -------------------------
+    logChatDebug({
+        context: Context,
+        userInput: text
+    });
+
+    // -------------------------
+    // Build effective history
+    // -------------------------
     const effectiveHistory = [...history];
     if (Context) {
         effectiveHistory.unshift({
@@ -106,16 +114,6 @@ export async function sendMessage() {
             content: `Here is the code context:\n\n${Context}`
         });
     }
-
-    /* -------------------------
-       Debug Logging
-    ------------------------- */
-
-    logChatRequest({
-        model,
-        message: text,
-        history: effectiveHistory
-    });
 
     // -------------------------
     // Animated thinking indicator
@@ -144,7 +142,6 @@ export async function sendMessage() {
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
-
         let firstChunk = true;
 
         while (true) {
