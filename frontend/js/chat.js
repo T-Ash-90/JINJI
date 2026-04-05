@@ -102,7 +102,7 @@ export async function sendMessage() {
     if (Context) {
         effectiveHistory.unshift({
             role: "system",
-            content: `You are a helpful coding assistant named JINJI. Here is the code context:\n\n${Context}`
+            content: `Here is the code context:\n\n${Context}`
         });
     }
 

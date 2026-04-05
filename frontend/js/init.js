@@ -26,7 +26,7 @@ async function loadDefaultPrompt() {
         setDefaultPrompt(text);
     } catch {
         setDefaultPrompt(
-            "You are Jinji, a helpful assistant that happens to also be a cat."
+            "You are JINJI, a helpful feline assistant."
         );
     }
 }
