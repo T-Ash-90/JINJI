@@ -1,5 +1,5 @@
 /* -------------------------
-   Chat Logic
+   Chat Logic with Context
 ------------------------- */
 
 import {
@@ -13,6 +13,7 @@ import {
 
 import { renderMarkdown } from "./markdown.js";
 import { setGeneratingState } from "./ui.js";
+import { getContext } from "./context.js";
 
 /* -------------------------
    Scroll Helpers
@@ -85,19 +86,35 @@ export async function sendMessage() {
     appendMessage("user", text);
     inputField.value = "";
 
-    const botDiv = appendMessage(
-        "bot",
-        `<em class="thinking">JINJI is thinking...</em>`
-    );
+    const botDiv = appendMessage("bot", `<em class="thinking">JINJI is thinking...</em>`);
 
+    // -------------------------
+    // Fetch context
+    // -------------------------
+    let Context = "";
+    try {
+        Context = await getContext();
+    } catch (err) {
+        console.error("Failed to fetch context:", err);
+    }
+
+    // Prepend context as a system message if available
+    const effectiveHistory = [...history];
+    if (Context) {
+        effectiveHistory.unshift({
+            role: "system",
+            content: `You are a helpful coding assistant. Here is the code context:\n\n${Context}`
+        });
+    }
+
+    // -------------------------
+    // Animated thinking indicator
+    // -------------------------
     let dots = 0;
     const thinkingInterval = setInterval(() => {
         const box = document.getElementById("chat-box");
-
         dots = (dots + 1) % 4;
-        botDiv.innerHTML =
-            `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
-
+        botDiv.innerHTML = `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
         if (shouldAutoScroll(box)) scrollToBottom();
     }, 500);
 
@@ -111,7 +128,7 @@ export async function sendMessage() {
         const res = await fetch("http://localhost:8000/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text, history, model }),
+            body: JSON.stringify({ message: text, history: effectiveHistory, model }),
             signal: controller.signal
         });
 
@@ -136,20 +153,17 @@ export async function sendMessage() {
             }
 
             botDiv.innerHTML = renderMarkdown(fullReply);
-
             if (wasAtBottom) scrollToBottom();
         }
 
         if (fullReply.trim()) {
             botDiv.innerHTML = renderMarkdown(fullReply);
-
             history.push({ role: "user", content: text });
             history.push({ role: "assistant", content: fullReply });
         }
 
     } catch (err) {
         clearInterval(thinkingInterval);
-
         if (err.name === "AbortError") {
             botDiv.innerHTML += "<p><em>⛔ Generation stopped.</em></p>";
         } else {
