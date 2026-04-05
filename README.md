@@ -133,16 +133,16 @@ Make sure to replace /path/to/JINJI/ with the actual path where JINJI is located
 
 ## Licensing
 
-**JINJI** © Thomas Edward Ash https://github.com/T-Ash-90. This software is released under the [MIT License](./LICENSE).
+**JINJI** © [Thomas Edward Ash](https://github.com/T-Ash-90). This software is released under the [MIT License](./LICENSE).
 
 ### Third-Party Attributions & Acknowledgements
 
 - **FastAPI** (v0.101.1) — © Sebastián Ramírez and contributors, MIT Licensed. [GitHub repo](https://github.com/fastapi/fastapi). Used as the backend API framework.
-- **DOMPurify** (v3.3.3) — © Cure53 and other contributors, released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) and [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). Used for safe sanitization of HTML/Markdown.  
-- **marked** (v15.0.12) — © 2011–2025 Christopher Jeffrey, MIT Licensed. [GitHub repo](https://github.com/markedjs/marked). Used for parsing Markdown.  
+- **Electron** (v41.1.1) — © 2013–2023 GitHub, Inc., MIT Licensed. [GitHub repo](https://github.com/electron/electron). Used to build cross-platform desktop application.
+- **marked** (v15.0.12) — © 2011–2025 Christopher Jeffrey, MIT Licensed. [GitHub repo](https://github.com/markedjs/marked). Used for parsing Markdown. 
+- **DOMPurify** (v3.3.3) — © Cure53 and other contributors, released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) and [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). Used for safe sanitization of HTML/Markdown.   
 - **Highlight.js** (v11.9.0) — © Igor Sysoev and other contributors, BSD-3-Clause Licensed. [GitHub repo](https://github.com/highlightjs/highlight.js). Used for syntax highlighting in code blocks.  
 - **Atom One Dark Theme** (for Highlight.js) — © Alexander Gugel, BSD-3-Clause Licensed. [GitHub repo](https://github.com/highlightjs/highlight.js/tree/main/src/styles). Used as the code block styling theme.
-- **Electron (v41.1.1)** — © 2013–2023 GitHub, Inc., MIT Licensed. [GitHub repo](https://github.com/electron/electron). Used to build cross-platform desktop application.
 
 > ⚠️ Note: This project is intended for learning and personal use. It is not associated with any company or product.
 

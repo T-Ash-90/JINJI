@@ -13,20 +13,25 @@ furnished to do so, subject to the following conditions:
 1. The above copyright notice and this permission notice shall be included
    in all copies or substantial portions of the Software.
 
-2. The following third-party libraries are included and must retain their
+2. The following third-party libraries retain their
    original license notices:
 
-   -FastAPI (v0.101.1) | MIT License
+   - FastAPI (v0.101.1) | MIT License
      © Sebastián Ramírez and contributors, MIT Licensed.
      https://github.com/fastapi/fastapi
 
-   - DOMPurify v3.3.3 | Apache License 2.0 / Mozilla Public License 2.0
-     © Cure53 and other contributors
-     https://github.com/cure53/DOMPurify
+   - Electron | MIT License
+     Included as a CSS theme for Highlight.js syntax highlighting
+     © Electron contributors
+     https://github.com/electron/electron
 
    - marked v15.0.12 | MIT License
      © Christopher Jeffrey
      https://github.com/markedjs/marked
+
+   - DOMPurify v3.3.3 | Apache License 2.0 / Mozilla Public License 2.0
+     © Cure53 and other contributors
+     https://github.com/cure53/DOMPurify
 
    - Highlight.js v11.9.0 | BSD-3-Clause
      © Igor Sysoev and other contributors
@@ -37,10 +42,6 @@ furnished to do so, subject to the following conditions:
      © Alexander Gugel
      https://github.com/highlightjs/highlight.js/tree/main/src/styles
 
-   - Electron | MIT License
-     Included as a CSS theme for Highlight.js syntax highlighting
-     © Electron contributors
-     https://github.com/electron/electron
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
