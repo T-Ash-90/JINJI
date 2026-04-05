@@ -68,7 +68,7 @@ export function appendMessage(role, text) {
 }
 
 /* -------------------------
-   Send / Stop
+   Send Message
 ------------------------- */
 export async function sendMessage() {
     if (!history.length || history[0].role !== "system") {
@@ -84,63 +84,62 @@ export async function sendMessage() {
     appendMessage("user", text);
     inputField.value = "";
 
-    const botDiv = appendMessage("bot", `<em class="thinking">JINJI is thinking...</em>`);
-
-    // -------------------------
-    // Fetch context
-    // -------------------------
     let Context = "";
+    let contextFiles = [];
     const contextToggle = document.getElementById("context-toggle");
+
     if (contextToggle.checked) {
         try {
             Context = await getContext();
+            contextFiles = Context.split('\n')
+                .filter(line => line.startsWith('Path:'))
+                .map(line => line.replace('Path: ', '').trim());
         } catch (err) {
             console.error("Failed to fetch context:", err);
         }
+
+        let tokenInfo = {
+            systemTokens: estimateTokens(DEFAULT_SYSTEM_PROMPT),
+            contextTokens: estimateTokens(Context),
+            userTokens: estimateTokens(text),
+            totalTokens: 0,
+        };
+        tokenInfo.totalTokens = tokenInfo.systemTokens + tokenInfo.contextTokens + tokenInfo.userTokens;
+
+        logChatDebug({
+            context: Context,
+            userInput: text,
+        });
+        appendContextAndTokenInfo(contextFiles, tokenInfo);
     }
 
-    // -------------------------
-    // Log token estimates
-    // -------------------------
-    logChatDebug({
-        context: Context,
-        userInput: text
-    });
+    const botDiv = appendMessage("bot", `<em class="thinking">JINJI is thinking...</em>`);
 
-    // -------------------------
-    // Build effective history
-    // -------------------------
     const effectiveHistory = [...history];
     if (Context) {
         effectiveHistory.unshift({
             role: "system",
-            content: `Here is the code context:\n\n${Context}`
+            content: `Here is the code context:\n\n${Context}`,
         });
     }
 
     // -------------------------
     // Animated thinking indicator
     // -------------------------
-    let dots = 0;
-    const thinkingInterval = setInterval(() => {
-        const box = document.getElementById("chat-box");
-        dots = (dots + 1) % 4;
-        botDiv.innerHTML = `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
-        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 5) scrollToBottom();
-    }, 500);
-
+    let fullReply = "";
     const controller = new AbortController();
     setController(controller);
     setGeneratingState(true);
 
-    let fullReply = "";
-
+    // -------------------------
+    // Fetch the response
+    // -------------------------
     try {
         const res = await fetch("http://localhost:8000/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: text, history: effectiveHistory, model }),
-            signal: controller.signal
+            signal: controller.signal,
         });
 
         const reader = res.body.getReader();
@@ -151,19 +150,16 @@ export async function sendMessage() {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const box = document.getElementById("chat-box");
-            const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 5;
-
             const chunk = decoder.decode(value);
             fullReply += chunk;
 
             if (firstChunk) {
-                clearInterval(thinkingInterval);
                 firstChunk = false;
             }
 
             botDiv.innerHTML = renderMarkdown(fullReply);
-            if (wasAtBottom) scrollToBottom();
+            const box = document.getElementById("chat-box");
+            if (box.scrollTop + box.clientHeight >= box.scrollHeight - 5) scrollToBottom();
         }
 
         if (fullReply.trim()) {
@@ -171,22 +167,71 @@ export async function sendMessage() {
             history.push({ role: "user", content: text });
             history.push({ role: "assistant", content: fullReply });
         }
-
     } catch (err) {
-        clearInterval(thinkingInterval);
         if (err.name === "AbortError") {
             botDiv.innerHTML += "<p><em>⛔ Generation stopped.</em></p>";
         } else {
             botDiv.innerHTML += "<p><em>⚠️ Error occurred.</em></p>";
         }
     } finally {
-        clearInterval(thinkingInterval);
-        setController(null);
         setGeneratingState(false);
+        setController(null);
         inputField.focus();
+        enableSendButton();
     }
 }
 
+/* -------------------------
+   Enable the Send Button
+------------------------- */
+function enableSendButton() {
+    const sendButton = document.getElementById("send-button");
+    if (sendButton) {
+        sendButton.disabled = false;
+    }
+}
+
+/* -------------------------
+   Stop Button
+------------------------- */
 export function stopGeneration() {
     if (currentController) currentController.abort();
+    enableSendButton();
+}
+
+/* -------------------------
+   Helper Functions
+------------------------- */
+function appendContextAndTokenInfo(contextFiles, tokenInfo) {
+    const box = document.getElementById("chat-box");
+
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("info-message");
+
+    const contextLabel = document.createElement("div");
+    contextLabel.classList.add("info-label");
+    contextLabel.textContent = "Context files:";
+    const contextContent = document.createElement("div");
+    contextContent.classList.add("info-content");
+    contextContent.textContent = contextFiles.join(",\n");
+
+    const tokenLabel = document.createElement("div");
+    tokenLabel.classList.add("info-label");
+    tokenLabel.textContent = "Estimated Total Tokens:";
+    const tokenContent = document.createElement("div");
+    tokenContent.classList.add("info-content");
+    tokenContent.textContent = tokenInfo.totalTokens;
+
+    infoDiv.appendChild(contextLabel);
+    infoDiv.appendChild(contextContent);
+    infoDiv.appendChild(tokenLabel);
+    infoDiv.appendChild(tokenContent);
+
+    box.appendChild(infoDiv);
+    scrollToBottom();
+}
+
+function estimateTokens(text) {
+    if (!text) return 0;
+    return Math.ceil(text.length / 4);
 }
