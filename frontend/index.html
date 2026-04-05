@@ -15,34 +15,29 @@
   <link rel="stylesheet" href="css/code.css">
   <link rel="stylesheet" href="css/atom-one-dark.css">
 </head>
-
 <body>
   <div id="main-container">
     <div id="sidebar">
       <img src="assets/images/jinjitext.png" id="textlogo">
       <img src="assets/images/logo.png" id="logo">
-
       <div id="model-selector-container">
         <label>Choose Model:</label>
         <select id="model-selector">
           <option>Loading...</option>
         </select>
       </div>
-
-      <div id="chat-controls">
-          <label>
-              <input type="checkbox" id="context-toggle" checked>
-              Include Context
-          </label>
-      </div>
     </div>
-
     <div id="chat-container">
       <div id="chat-box"></div>
-
+      <div id="chat-controls">
+        <label class="context-button">
+            <input type="checkbox" id="context-toggle" checked>
+            <span></span>
+            Include Context
+        </label>
+      </div>
       <div id="input-container">
         <textarea id="input" placeholder="Type a message..."></textarea>
-
         <div id="button-column">
           <button id="send-button">Send</button>
           <button id="stop-button" disabled>Stop</button>
@@ -50,7 +45,6 @@
       </div>
     </div>
   </div>
-
   <script src="js/vendor/highlight.min.js"></script>
   <script src="js/vendor/purify.min.js"></script>
   <script src="js/vendor/marked.min.js"></script>
