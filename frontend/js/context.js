@@ -1,18 +1,77 @@
 export async function getContext() {
     try {
+        console.log("[getContext] Starting context fetch...");
+
+        const toggleEl = document.getElementById("context-toggle");
+        if (!toggleEl) {
+            console.error("[getContext] Toggle element not found in DOM");
+            return "";
+        }
+
+        const includeContext = toggleEl.checked;
+        console.log("[getContext] includeContext:", includeContext);
+
+        if (!includeContext) {
+            console.log("[getContext] Context disabled, returning empty string");
+            return "";
+        }
+
+        console.log("[getContext] Sending request to local API...");
+
         const res = await fetch("http://127.0.0.1:8765/files", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        console.log("[getContext] Response received:", {
+            status: res.status,
+            statusText: res.statusText,
+        });
 
-        // Convert objects to readable string
-        return data.files.map(f => `Path: ${f.path}\nContent:\n${f.content}`).join('\n\n');
+        if (!res.ok) {
+            const text = await res.text().catch(() => "<failed to read body>");
+            console.error("[getContext] HTTP error:", {
+                status: res.status,
+                statusText: res.statusText,
+                body: text,
+            });
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        let data;
+        try {
+            data = await res.json();
+        } catch (parseErr) {
+            console.error("[getContext] Failed to parse JSON:", parseErr);
+            throw parseErr;
+        }
+
+        if (!data || !Array.isArray(data.files)) {
+            console.error("[getContext] Unexpected response format:", data);
+            return "";
+        }
+
+        console.log(`[getContext] Received ${data.files.length} files`);
+
+        console.log(
+            "[getContext] File paths:",
+            data.files.map(f => f.path)
+        );
+
+        return data.files
+            .map((f, i) => {
+                if (!f.path || !f.content) {
+                    console.warn(`[getContext] File ${i} missing fields:`, f);
+                }
+                return `Path: ${f.path}\nContent:\n${f.content}`;
+            })
+            .join("\n\n");
 
     } catch (err) {
-        console.error("Error fetching context:", err);
+        console.error("[getContext] Fatal error:", {
+            message: err.message,
+            stack: err.stack,
+        });
         return "";
     }
 }

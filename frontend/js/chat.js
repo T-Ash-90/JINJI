@@ -98,12 +98,11 @@ export async function sendMessage() {
         console.error("Failed to fetch context:", err);
     }
 
-    // Prepend context as a system message if available
     const effectiveHistory = [...history];
     if (Context) {
         effectiveHistory.unshift({
             role: "system",
-            content: `You are a helpful coding assistant. Here is the code context:\n\n${Context}`
+            content: `You are a helpful coding assistant named JINJI. Here is the code context:\n\n${Context}`
         });
     }
 
