@@ -1,6 +1,12 @@
 /* -------------------------
-   Chat Logic with Debug & Tokens
+   Chat Logic
 ------------------------- */
+
+import {
+    appendContextAndTokenInfo,
+    estimateTokens,
+    enableSendButton
+} from './utils.js';
 
 import {
     history,
@@ -17,23 +23,10 @@ import { getContext } from "./context.js";
 import { logChatDebug } from "./logs.js";
 
 /* -------------------------
-   Scroll Helpers
-------------------------- */
-function shouldAutoScroll(box, threshold = 5) {
-    return box.scrollTop + box.clientHeight >= box.scrollHeight - threshold;
-}
-
-export function scrollToBottom() {
-    const box = document.getElementById("chat-box");
-    box.scrollTop = box.scrollHeight;
-}
-
-/* -------------------------
    Messages
 ------------------------- */
 export function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
-    const wasAtBottom = shouldAutoScroll(box);
 
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -56,13 +49,11 @@ export function appendMessage(role, text) {
         div.appendChild(content);
         box.appendChild(div);
 
-        if (wasAtBottom) scrollToBottom();
         return content;
     } else {
         div.textContent = text;
         box.appendChild(div);
 
-        if (wasAtBottom) scrollToBottom();
         return div;
     }
 }
@@ -123,17 +114,11 @@ export async function sendMessage() {
         });
     }
 
-    // -------------------------
-    // Animated thinking indicator
-    // -------------------------
     let fullReply = "";
     const controller = new AbortController();
     setController(controller);
     setGeneratingState(true);
 
-    // -------------------------
-    // Fetch the response
-    // -------------------------
     try {
         const res = await fetch("http://localhost:8000/chat", {
             method: "POST",
@@ -158,8 +143,6 @@ export async function sendMessage() {
             }
 
             botDiv.innerHTML = renderMarkdown(fullReply);
-            const box = document.getElementById("chat-box");
-            if (box.scrollTop + box.clientHeight >= box.scrollHeight - 5) scrollToBottom();
         }
 
         if (fullReply.trim()) {
@@ -182,56 +165,9 @@ export async function sendMessage() {
 }
 
 /* -------------------------
-   Enable the Send Button
-------------------------- */
-function enableSendButton() {
-    const sendButton = document.getElementById("send-button");
-    if (sendButton) {
-        sendButton.disabled = false;
-    }
-}
-
-/* -------------------------
    Stop Button
 ------------------------- */
 export function stopGeneration() {
     if (currentController) currentController.abort();
     enableSendButton();
-}
-
-/* -------------------------
-   Helper Functions
-------------------------- */
-function appendContextAndTokenInfo(contextFiles, tokenInfo) {
-    const box = document.getElementById("chat-box");
-
-    const infoDiv = document.createElement("div");
-    infoDiv.classList.add("info-message");
-
-    const contextLabel = document.createElement("div");
-    contextLabel.classList.add("info-label");
-    contextLabel.textContent = "Context files:";
-    const contextContent = document.createElement("div");
-    contextContent.classList.add("info-content");
-    contextContent.textContent = contextFiles.join(",\n");
-
-    const tokenLabel = document.createElement("div");
-    tokenLabel.classList.add("info-label");
-    tokenLabel.textContent = "Estimated Total Tokens:";
-    const tokenContent = document.createElement("div");
-    tokenContent.classList.add("info-content");
-    tokenContent.textContent = tokenInfo.totalTokens;
-
-    infoDiv.appendChild(contextLabel);
-    infoDiv.appendChild(contextContent);
-    infoDiv.appendChild(tokenLabel);
-    infoDiv.appendChild(tokenContent);
-
-    box.appendChild(infoDiv);
-    scrollToBottom();
-}
-
-function estimateTokens(text) {
-    if (!text) return 0;
-    return Math.ceil(text.length / 4);
 }
