@@ -16,6 +16,10 @@ furnished to do so, subject to the following conditions:
 2. The following third-party libraries are included and must retain their
    original license notices:
 
+   -FastAPI (v0.101.1) | MIT License
+     © Sebastián Ramírez and contributors, MIT Licensed.
+     https://github.com/fastapi/fastapi
+
    - DOMPurify v3.3.3 | Apache License 2.0 / Mozilla Public License 2.0
      © Cure53 and other contributors
      https://github.com/cure53/DOMPurify
@@ -28,7 +32,7 @@ furnished to do so, subject to the following conditions:
      © Igor Sysoev and other contributors
      https://github.com/highlightjs/highlight.js
 
-   - Atom One Dark Theme (for Highlight.js) | BSD-3-Clause
+   - Atom One Dark Theme | BSD-3-Clause
      Included as a CSS theme for Highlight.js syntax highlighting
      © Alexander Gugel
      https://github.com/highlightjs/highlight.js/tree/main/src/styles

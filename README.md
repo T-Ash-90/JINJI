@@ -1,6 +1,6 @@
 # JINJI - An Electron App for interacting with local LLMs.
 
-JINJI is an intuitive, offline-first interface designed to seamlessly interact with locally installed LLMs powered by Ollama, offering an efficient and private AI experience without the need for an internet connection.
+JINJI is an intuitive, offline-first interface designed to seamlessly interact with locally installed LLMs powered by [Ollama](https://ollama.com/), offering an efficient and private AI experience without the need for an internet connection.
 
 ---
 
@@ -8,8 +8,9 @@ JINJI is an intuitive, offline-first interface designed to seamlessly interact w
 
 - Chat interface with a clean and interactive UI
 - Fully local execution with no external API calls
-- Support for multiple locally installed LLMs with Ollama: https://ollama.com/
+- Support for multiple locally installed LLMs with [Ollama](https://ollama.com/)
 - Easy model switching depending on the task
+- Optional context injection from a user-specified API endpoint
 - Electron desktop app
 
 ---
@@ -108,7 +109,12 @@ The launcher will:
 - Open the Electron desktop window pointing to the local server (http://localhost:8000).
 - Automatically handle backend startup, waiting for readiness, and shutdown when the window is closed.
 
-2. You can also create a convenient .desktop launcher icon to launch the application from your desktop environment. Simply create a .desktop file (example below) then save it to your ~/.local/share/applications/ directory.
+2. Add context and system promopt
+
+- Simply update frontend/js/config.js with your preferred system prompt and context API endpoint.
+- Once set up, the "Context" toggle above the chat window allows enabling or disabling fetching context from your API endpoint.
+
+3. You can also create a convenient .desktop launcher icon to launch the application from your desktop environment. Simply create a .desktop file (example below) then save it to your ~/.local/share/applications/ directory.
 
 ```bash
 [Desktop Entry]
@@ -131,6 +137,7 @@ Make sure to replace /path/to/JINJI/ with the actual path where JINJI is located
 
 ### Third-Party Attributions & Acknowledgements
 
+- **FastAPI** (v0.101.1) — © Sebastián Ramírez and contributors, MIT Licensed. [GitHub repo](https://github.com/fastapi/fastapi). Used as the backend API framework.
 - **DOMPurify** (v3.3.3) — © Cure53 and other contributors, released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) and [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). Used for safe sanitization of HTML/Markdown.  
 - **marked** (v15.0.12) — © 2011–2025 Christopher Jeffrey, MIT Licensed. [GitHub repo](https://github.com/markedjs/marked). Used for parsing Markdown.  
 - **Highlight.js** (v11.9.0) — © Igor Sysoev and other contributors, BSD-3-Clause Licensed. [GitHub repo](https://github.com/highlightjs/highlight.js). Used for syntax highlighting in code blocks.  
