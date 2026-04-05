@@ -1,3 +1,9 @@
+/* -------------------------
+   Context
+------------------------- */
+
+import { CONFIG } from "./config.js";
+
 export async function getContext() {
     try {
         console.log("[getContext] Starting context fetch...");
@@ -16,9 +22,17 @@ export async function getContext() {
             return "";
         }
 
+        const endpoint = CONFIG.contextApiEndpoint || "none";
+
+        if (endpoint === "none") {
+            console.warn("[getContext] No context API endpoint configured");
+            return "";
+        }
+
+        console.log("[getContext] Using endpoint:", endpoint);
         console.log("[getContext] Sending request to local API...");
 
-        const res = await fetch("http://127.0.0.1:8765/files", {
+        const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
         });

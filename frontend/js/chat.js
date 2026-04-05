@@ -1,5 +1,5 @@
 /* -------------------------
-   Chat Logic with Context
+   Chat Logic
 ------------------------- */
 
 import {
@@ -14,6 +14,7 @@ import {
 import { renderMarkdown } from "./markdown.js";
 import { setGeneratingState } from "./ui.js";
 import { getContext } from "./context.js";
+import { logChatRequest } from "./logs.js";
 
 /* -------------------------
    Scroll Helpers
@@ -105,6 +106,16 @@ export async function sendMessage() {
             content: `Here is the code context:\n\n${Context}`
         });
     }
+
+    /* -------------------------
+       Debug Logging
+    ------------------------- */
+
+    logChatRequest({
+        model,
+        message: text,
+        history: effectiveHistory
+    });
 
     // -------------------------
     // Animated thinking indicator

@@ -9,27 +9,15 @@ import {
     modelSelector
 } from "./state.js";
 
+import { CONFIG } from "./config.js";
+
 import { updateSendButtonState } from "./ui.js";
 import { sendMessage, stopGeneration } from "./chat.js";
 import { copyToClipboard } from "./utils.js";
 
 /* -------------------------
-   Loaders
+   Load Models
 ------------------------- */
-
-async function loadDefaultPrompt() {
-    try {
-        const res = await fetch("/assets/prompt.txt");
-        if (!res.ok) throw new Error();
-
-        const text = (await res.text()).trim();
-        setDefaultPrompt(text);
-    } catch {
-        setDefaultPrompt(
-            "You are JINJI, a helpful feline assistant."
-        );
-    }
-}
 
 async function loadModels() {
     try {
@@ -75,7 +63,11 @@ window.onload = async () => {
 
     setElements(elements);
 
-    await loadDefaultPrompt();
+    setDefaultPrompt(
+        (CONFIG.systemPrompt && CONFIG.systemPrompt.trim()) ||
+        "You are JINJI, a helpful feline assistant."
+    );
+
     loadModels();
 
     elements.sendButton.onclick = sendMessage;
