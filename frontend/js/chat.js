@@ -90,10 +90,13 @@ export async function sendMessage() {
     // Fetch context
     // -------------------------
     let Context = "";
-    try {
-        Context = await getContext();
-    } catch (err) {
-        console.error("Failed to fetch context:", err);
+    const contextToggle = document.getElementById("context-toggle");
+    if (contextToggle.checked) {
+        try {
+            Context = await getContext();
+        } catch (err) {
+            console.error("Failed to fetch context:", err);
+        }
     }
 
     // -------------------------
@@ -123,7 +126,7 @@ export async function sendMessage() {
         const box = document.getElementById("chat-box");
         dots = (dots + 1) % 4;
         botDiv.innerHTML = `<em class='thinking'>JINJI is thinking${'.'.repeat(dots)}</em>`;
-        if (shouldAutoScroll(box)) scrollToBottom();
+        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 5) scrollToBottom();
     }, 500);
 
     const controller = new AbortController();
@@ -149,7 +152,7 @@ export async function sendMessage() {
             if (done) break;
 
             const box = document.getElementById("chat-box");
-            const wasAtBottom = shouldAutoScroll(box);
+            const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 5;
 
             const chunk = decoder.decode(value);
             fullReply += chunk;
