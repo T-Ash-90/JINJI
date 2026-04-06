@@ -31,7 +31,7 @@ import { getContext } from "./context.js";
 import { logChatDebug } from "./logs.js";
 
 /* -------------------------
-   Messages
+   Append Message
 ------------------------- */
 export function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
