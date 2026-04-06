@@ -25,6 +25,7 @@ async function loadModels() {
         const data = await res.json();
 
         modelSelector.innerHTML = "";
+        console.log("modelSelector:", modelSelector);
 
         const def = document.createElement("option");
         def.textContent = "-- Select a model --";

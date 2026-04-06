@@ -3,6 +3,6 @@
 ------------------------- */
 
 export const CONFIG = {
-    systemPrompt: "You are JINJI, a helpful feline coding assistant.",
+    systemPrompt: "You are a helpful coding assistant.",
     contextApiEndpoint: "http://127.0.0.1:8765/files"
 };
