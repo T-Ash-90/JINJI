@@ -2,7 +2,13 @@
    UI Helpers
 ------------------------- */
 
-import { inputField, sendButton, stopButton, modelSelector, currentController } from "./state.js";
+import {
+    inputField,
+    sendButton,
+    stopButton,
+    modelSelector,
+    currentController
+} from "./state.js";
 
 export function isModelSelected() {
     return modelSelector.value && modelSelector.value.trim() !== "";
