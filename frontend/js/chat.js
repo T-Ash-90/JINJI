@@ -113,13 +113,15 @@ export async function sendMessage() {
             tokenInfo.contextTokens +
             tokenInfo.userTokens;
 
-        logChatDebug({
-            context: Context,
-            userInput: text,
-        });
-
         appendContextAndTokenInfo(contextFiles, tokenInfo);
     }
+
+    console.log('Sending message:', text);
+
+    logChatDebug({
+        context: Context,
+        userInput: text,
+    });
 
     const botDiv = appendMessage(
         "bot",
