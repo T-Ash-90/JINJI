@@ -2,37 +2,14 @@
    Chat Logic
 ------------------------- */
 
-import {
-    MAX_MESSAGES,
-    MAX_CONTEXT_TOKENS,
-    CONFIG,
-} from "./config.js";
-
-import {
-    appendContextAndTokenInfo,
-    estimateTokens,
-    enableSendButton,
-    buildTrimmedHistory,
-    trimContextToTokenLimit
-} from './utils.js';
-
-import {
-    history,
-    currentController,
-    DEFAULT_SYSTEM_PROMPT,
-    inputField,
-    modelSelector,
-    setController
-} from "./state.js";
-
+import { MAX_MESSAGES, MAX_CONTEXT_TOKENS, CONFIG } from "./config.js";
+import { history, currentController, DEFAULT_SYSTEM_PROMPT, inputField, modelSelector, setController } from "./state.js";
+import { setGeneratingState, enableSendButton, stopGeneration } from "./utils.js";
+import { getContext, appendContext, trimContext, estimateTokens, trimHistory} from "./context.js";
 import { renderMarkdown } from "./markdown.js";
-import { setGeneratingState } from "./ui.js";
-import { getContext } from "./context.js";
 import { logChatDebug } from "./logs.js";
 
-/* -------------------------
-   Append Message
-------------------------- */
+// Append Message
 export function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
 
@@ -66,9 +43,7 @@ export function appendMessage(role, text) {
     }
 }
 
-/* -------------------------
-   Send Message
-------------------------- */
+// Send Message
 export async function sendMessage() {
     if (!history.length || history[0].role !== "system") {
         history.unshift({ role: "system", content: DEFAULT_SYSTEM_PROMPT });
@@ -91,7 +66,7 @@ export async function sendMessage() {
         try {
             Context = await getContext();
 
-            Context = trimContextToTokenLimit(Context);
+            Context = trimContext(Context);
 
             contextFiles = Context.split('\n')
                 .filter(line => line.startsWith('Path:'))
@@ -113,7 +88,7 @@ export async function sendMessage() {
             tokenInfo.contextTokens +
             tokenInfo.userTokens;
 
-        appendContextAndTokenInfo(contextFiles, tokenInfo);
+        appendContext(contextFiles, tokenInfo);
     }
 
     console.log('Sending message:', text);
@@ -128,14 +103,14 @@ export async function sendMessage() {
         `<em class="thinking">JINJI is thinking...</em>`
     );
 
-    let effectiveHistory = buildTrimmedHistory(history);
+    let effectiveHistory = trimHistory(history);
 
     if (Context) {
         effectiveHistory.unshift({
             role: "system",
             content: `Here is the code context:\n\n${Context}`,
         });
-        effectiveHistory = buildTrimmedHistory(effectiveHistory);
+        effectiveHistory = trimHistory(effectiveHistory);
     }
 
     let fullReply = "";
@@ -192,12 +167,4 @@ export async function sendMessage() {
         inputField.focus();
         enableSendButton();
     }
-}
-
-/* -------------------------
-   Stop Button
-------------------------- */
-export function stopGeneration() {
-    if (currentController) currentController.abort();
-    enableSendButton();
 }

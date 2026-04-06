@@ -1,9 +1,16 @@
 /* -------------------------
-   Context
+   Context and Tokens Logic
 ------------------------- */
 
-import { CONFIG } from "./config.js";
+import { MAX_MESSAGES, MAX_CONTEXT_TOKENS, CONFIG } from "./config.js";
 
+// Estimate Tokens
+export function estimateTokens(text) {
+    if (!text) return 0;
+    return Math.ceil(text.length / 4);
+}
+
+// Get Context
 export async function getContext() {
     try {
         console.log("[getContext] Starting context fetch...");
@@ -88,4 +95,45 @@ export async function getContext() {
         });
         return "";
     }
+}
+
+// Trim Context
+export function trimContext(context) {
+    let trimmed = context;
+
+    while (estimateTokens(trimmed) > MAX_CONTEXT_TOKENS) {
+        trimmed = trimmed.slice(0, Math.floor(trimmed.length * 0.9));
+    }
+
+    return trimmed;
+}
+
+// Append Context
+export function appendContext(contextFiles) {
+    const box = document.getElementById("chat-box");
+
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("info-message");
+
+    const contextLabel = document.createElement("div");
+    contextLabel.classList.add("info-label");
+    contextLabel.textContent = "Context files:";
+    const contextContent = document.createElement("div");
+    contextContent.classList.add("info-content");
+    contextContent.textContent = contextFiles.join(",\n");
+
+    infoDiv.appendChild(contextLabel);
+    infoDiv.appendChild(contextContent);
+
+    box.appendChild(infoDiv);
+}
+
+//Trim History
+export function trimHistory(history) {
+    const systemMessages = history.filter(m => m.role === "system");
+    const nonSystemMessages = history.filter(m => m.role !== "system");
+
+    const trimmed = nonSystemMessages.slice(-MAX_MESSAGES);
+
+    return [...systemMessages, ...trimmed];
 }

@@ -4,10 +4,12 @@
 
 const markdownPlugins = [];
 
+// Register Markdown Plugin
 export function registerMarkdownPlugin(pluginFn) {
     markdownPlugins.push(pluginFn);
 }
 
+// Apply Markdown Plugins
 export function applyMarkdownPlugins(container) {
     markdownPlugins.forEach(plugin => {
         try {
@@ -16,6 +18,7 @@ export function applyMarkdownPlugins(container) {
     });
 }
 
+// Render Markdown
 export function renderMarkdown(text) {
     const rawHtml = marked.parse(text);
     const cleanHtml = DOMPurify.sanitize(rawHtml);

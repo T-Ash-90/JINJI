@@ -2,15 +2,36 @@
    Utilities
 ------------------------- */
 
-import {
-    MAX_MESSAGES,
-    MAX_CONTEXT_TOKENS,
-    CONFIG,
-} from "./config.js";
+import { MAX_MESSAGES, MAX_CONTEXT_TOKENS, CONFIG } from "./config.js";
+import { inputField, sendButton, stopButton, modelSelector, currentController } from "./state.js";
 
-/* -------------------------
-   Enable Send Button
-------------------------- */
+// Model Selector
+export function isModelSelected() {
+    return modelSelector.value && modelSelector.value.trim() !== "";
+}
+
+// Input Text Utility
+export function hasInputText() {
+    return inputField.value.trim().length > 0;
+}
+
+// Update Send Button State
+export function updateSendButtonState() {
+    const hasModel = isModelSelected();
+    const hasText = hasInputText();
+    const isBusy = currentController !== null;
+
+    sendButton.disabled = !(hasModel && hasText) || isBusy;
+}
+
+// Set Generating State
+export function setGeneratingState(isGenerating) {
+    stopButton.disabled = !isGenerating;
+    inputField.disabled = isGenerating;
+    updateSendButtonState();
+}
+
+// Enable Send Button
 export function enableSendButton() {
     const sendButton = document.getElementById("send-button");
     if (sendButton) {
@@ -18,9 +39,13 @@ export function enableSendButton() {
     }
 }
 
-/* -------------------------
-   Copy to Clipboard
-------------------------- */
+// Stop Generation
+export function stopGeneration() {
+    if (currentController) currentController.abort();
+    enableSendButton();
+}
+
+// Copy To Clipboard
 export async function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
         try {
@@ -47,65 +72,4 @@ export async function copyToClipboard(text) {
     } catch {
         return false;
     }
-}
-
-/* -------------------------
-   Estimate Tokens
-------------------------- */
-export function estimateTokens(text) {
-    if (!text) return 0;
-    return Math.ceil(text.length / 4);
-}
-
-/* -------------------------
-   Append Context and Token Info
-------------------------- */
-export function appendContextAndTokenInfo(contextFiles, tokenInfo) {
-    const box = document.getElementById("chat-box");
-
-    const infoDiv = document.createElement("div");
-    infoDiv.classList.add("info-message");
-
-    const contextLabel = document.createElement("div");
-    contextLabel.classList.add("info-label");
-    contextLabel.textContent = "Context files:";
-    const contextContent = document.createElement("div");
-    contextContent.classList.add("info-content");
-    contextContent.textContent = contextFiles.join(",\n");
-
-    const tokenLabel = document.createElement("div");
-    tokenLabel.classList.add("info-label");
-    tokenLabel.textContent = "Estimated Total Tokens:";
-    const tokenContent = document.createElement("div");
-    tokenContent.classList.add("info-content");
-    tokenContent.textContent = tokenInfo.totalTokens;
-
-    infoDiv.appendChild(contextLabel);
-    infoDiv.appendChild(contextContent);
-    infoDiv.appendChild(tokenLabel);
-    infoDiv.appendChild(tokenContent);
-
-    box.appendChild(infoDiv);
-}
-
-/* -------------------------
-   Trim History
-------------------------- */
-export function buildTrimmedHistory(history) {
-    const systemMessages = history.filter(m => m.role === "system");
-    const nonSystemMessages = history.filter(m => m.role !== "system");
-
-    const trimmed = nonSystemMessages.slice(-MAX_MESSAGES);
-
-    return [...systemMessages, ...trimmed];
-}
-
-export function trimContextToTokenLimit(context) {
-    let trimmed = context;
-
-    while (estimateTokens(trimmed) > MAX_CONTEXT_TOKENS) {
-        trimmed = trimmed.slice(0, Math.floor(trimmed.length * 0.9));
-    }
-
-    return trimmed;
 }

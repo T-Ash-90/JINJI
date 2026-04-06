@@ -1,24 +1,13 @@
 /* -------------------------
-   Init
+   Initilization Script
 ------------------------- */
 
-import {
-    setElements,
-    history,
-    setDefaultPrompt,
-    modelSelector
-} from "./state.js";
-
+import { setElements, history, setDefaultPrompt, modelSelector } from "./state.js";
 import { CONFIG } from "./config.js";
+import { sendMessage } from "./chat.js";
+import { copyToClipboard, updateSendButtonState, stopGeneration } from "./utils.js";
 
-import { updateSendButtonState } from "./ui.js";
-import { sendMessage, stopGeneration } from "./chat.js";
-import { copyToClipboard } from "./utils.js";
-
-/* -------------------------
-   Load Models
-------------------------- */
-
+// Load Models
 async function loadModels() {
     try {
         const res = await fetch("http://localhost:8000/models");
@@ -94,10 +83,6 @@ window.onload = async () => {
 
     updateSendButtonState();
 };
-
-/* -------------------------
-   Copy Handler
-------------------------- */
 
 document.addEventListener("click", async (e) => {
     const btn = e.target.closest(".copy-btn");
