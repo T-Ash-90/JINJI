@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 import subprocess
@@ -102,3 +102,25 @@ def list_models():
 
     except Exception as e:
         return {"models": [], "status": "error", "error": str(e)}
+
+import subprocess
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
+
+# -------------------------
+# Model Info Endpoint
+# -------------------------
+@router.get("/models/{model_name}")
+async def show_model(model_name: str):
+    try:
+        result = subprocess.run(
+            [OLLAMA_CMD, "show", model_name],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return JSONResponse(content={"model_info": result.stdout.strip()})
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(status_code=400, detail=f"Error fetching model info: {e.stderr.strip()}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
