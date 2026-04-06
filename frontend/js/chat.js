@@ -4,7 +4,7 @@
 
 import { CONFIG } from './config.js';
 import { history, currentController, DEFAULT_SYSTEM_PROMPT, inputField, modelSelector, setController } from "./state.js";
-import { setGeneratingState, enableSendButton, stopGeneration } from "./utils.js";
+import { setGeneratingState, enableSendButton, stopGeneration, resetContextToggle} from "./utils.js";
 import { getContext, appendContext, trimContext, estimateTokens, trimHistory} from "./context.js";
 import { renderMarkdown } from "./markdown.js";
 import { logChatDebug } from "./logs.js";
@@ -120,6 +120,7 @@ export async function sendMessage() {
     const controller = new AbortController();
     setController(controller);
     setGeneratingState(true);
+    resetContextToggle();
 
     try {
         const res = await fetch("http://localhost:8000/chat", {

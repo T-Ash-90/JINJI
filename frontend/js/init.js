@@ -5,7 +5,11 @@
 import { setElements, history, setDefaultPrompt, modelSelector } from "./state.js";
 import { CONFIG } from "./config.js";
 import { sendMessage } from "./chat.js";
-import { copyToClipboard, updateSendButtonState, stopGeneration } from "./utils.js";
+import { copyToClipboard, updateSendButtonState, stopGeneration, parseModelInfo } from "./utils.js";
+
+/* -------------------------
+   Load Models and Model Info
+------------------------- */
 
 // Load Models
 async function loadModels() {
@@ -62,37 +66,9 @@ async function loadModelDetails(modelName) {
     }
 }
 
-// Helper function to parse model info text
-function parseModelInfo(modelInfoText) {
-    const modelInfo = {};
-    const lines = modelInfoText.split("\n");
-
-    lines.forEach(line => {
-        line = line.trim();
-
-        if (line.length === 0) return;
-
-        if (line.startsWith("architecture")) {
-            modelInfo.architecture = line.split(/\s+/).slice(1).join(" ").trim();
-        } else if (line.startsWith("parameters")) {
-            modelInfo.parameters = line.split(/\s+/).slice(1).join(" ").trim();
-        } else if (line.startsWith("context")) {
-            modelInfo.contextLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
-        } else if (line.startsWith("embedding")) {
-            modelInfo.embeddingLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
-        } else if (line.startsWith("quantization")) {
-            modelInfo.quantization = line.split(/\s+/).slice(1).join(" ").trim();
-        }
-    });
-
-    return modelInfo;
-}
-
-// Modify the modelSelector event listener to load model details when a model is selected
 document.addEventListener("DOMContentLoaded", () => {
     const modelSelector = document.getElementById("model-selector");
 
-    // Initially hide the model details section
     const modelDetailsSection = document.getElementById("model-details");
     if (modelDetailsSection) {
         modelDetailsSection.style.display = "none";
@@ -104,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (selectedModel) {
                 loadModelDetails(selectedModel);
             } else {
-                // Hide model details if no model is selected
                 if (modelDetailsSection) {
                     modelDetailsSection.style.display = "none";
                 }
@@ -113,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Modify the modelSelector event listener to load model details when a model is selected
 document.addEventListener("DOMContentLoaded", () => {
     const modelSelector = document.getElementById("model-selector");
 

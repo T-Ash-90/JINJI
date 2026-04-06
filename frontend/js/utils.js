@@ -44,6 +44,16 @@ export function stopGeneration() {
     enableSendButton();
 }
 
+// Reset Context Toggle
+export function resetContextToggle() {
+    const toggleEl = document.getElementById("context-toggle");
+    if (toggleEl) {
+        if (toggleEl.checked) {
+            toggleEl.checked = false;
+        }
+    }
+}
+
 // Copy To Clipboard
 export async function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -71,4 +81,30 @@ export async function copyToClipboard(text) {
     } catch {
         return false;
     }
+}
+
+// Parse Model Info
+export function parseModelInfo(modelInfoText) {
+    const modelInfo = {};
+    const lines = modelInfoText.split("\n");
+
+    lines.forEach(line => {
+        line = line.trim();
+
+        if (line.length === 0) return;
+
+        if (line.startsWith("architecture")) {
+            modelInfo.architecture = line.split(/\s+/).slice(1).join(" ").trim();
+        } else if (line.startsWith("parameters")) {
+            modelInfo.parameters = line.split(/\s+/).slice(1).join(" ").trim();
+        } else if (line.startsWith("context")) {
+            modelInfo.contextLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
+        } else if (line.startsWith("embedding")) {
+            modelInfo.embeddingLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
+        } else if (line.startsWith("quantization")) {
+            modelInfo.quantization = line.split(/\s+/).slice(1).join(" ").trim();
+        }
+    });
+
+    return modelInfo;
 }
