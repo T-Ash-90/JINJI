@@ -2,7 +2,10 @@
    Context and Tokens Logic
 ------------------------- */
 
-import { MAX_MESSAGES, MAX_CONTEXT_TOKENS, CONFIG } from "./config.js";
+import { CONFIG } from './config.js';
+
+const MAX_MESSAGES = CONFIG.maxMessages;
+const MAX_CONTEXT_TOKENS = CONFIG.maxContextTokens;
 
 // Estimate Tokens
 export function estimateTokens(text) {

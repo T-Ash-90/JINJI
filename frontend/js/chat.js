@@ -2,12 +2,15 @@
    Chat Logic
 ------------------------- */
 
-import { MAX_MESSAGES, MAX_CONTEXT_TOKENS, CONFIG } from "./config.js";
+import { CONFIG } from './config.js';
 import { history, currentController, DEFAULT_SYSTEM_PROMPT, inputField, modelSelector, setController } from "./state.js";
 import { setGeneratingState, enableSendButton, stopGeneration } from "./utils.js";
 import { getContext, appendContext, trimContext, estimateTokens, trimHistory} from "./context.js";
 import { renderMarkdown } from "./markdown.js";
 import { logChatDebug } from "./logs.js";
+
+const MAX_MESSAGES = CONFIG.maxMessages;
+const MAX_CONTEXT_TOKENS = CONFIG.maxContextTokens;
 
 // Append Message
 export function appendMessage(role, text) {

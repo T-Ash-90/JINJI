@@ -2,10 +2,10 @@
    Configuration File
 ------------------------- */
 
-export const MAX_MESSAGES = 10;
-export const MAX_CONTEXT_TOKENS = 5000;
-
 export const CONFIG = {
+    maxMessages: 10,
+    maxContextTokens: 10000,
+    contextApiEndpoint: "http://127.0.0.1:8765/files",
     systemPrompt: `
         You are a helpful coding assistant named JINJI, who also happens to be a cat.
 
@@ -16,7 +16,7 @@ export const CONFIG = {
 
         Coding:
         - Examine context code when provided
-        - Write clean and readble code
+        - Write clean and readable code
         - Follow modern best practices
         - Avoid overengineering
         - When fixing code: do not make inline comments. Provide corrected version and an explanation afterwards.
@@ -30,5 +30,4 @@ export const CONFIG = {
         - Do not hallucinate APIs or functions
         - If unsure, say so clearly
     `,
-    contextApiEndpoint: "http://127.0.0.1:8765/files"
 };

@@ -2,7 +2,6 @@
    Utilities
 ------------------------- */
 
-import { MAX_MESSAGES, MAX_CONTEXT_TOKENS, CONFIG } from "./config.js";
 import { inputField, sendButton, stopButton, modelSelector, currentController } from "./state.js";
 
 // Model Selector
