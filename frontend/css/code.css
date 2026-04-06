@@ -10,7 +10,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-code-header);
-  color: #ddd;
+  color: #dddddd;
   font-size: 12px;
   padding: 6px 10px;
   font-family: var(--font-mono);
@@ -34,4 +34,12 @@
 .hljs {
   font-family: var(--font-mono);
   font-size: 14px;
+}
+
+/* Inline code */
+code {
+  background: #dddddd;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
 }
