@@ -66,7 +66,7 @@ window.onload = async () => {
 
     setDefaultPrompt(
         (CONFIG.systemPrompt && CONFIG.systemPrompt.trim()) ||
-        "You are JINJI, a helpful feline assistant."
+        "You are a helpful assistant."
     );
 
     loadModels();
