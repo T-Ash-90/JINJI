@@ -20,7 +20,7 @@ export function setDefaultPrompt(prompt) {
     DEFAULT_SYSTEM_PROMPT = prompt;
 }
 
-//Set Elements
+// Set Elements
 export function setElements(elements) {
     inputField = elements.inputField;
     sendButton = elements.sendButton;

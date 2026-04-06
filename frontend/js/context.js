@@ -10,7 +10,12 @@ const MAX_CONTEXT_TOKENS = CONFIG.maxContextTokens;
 // Estimate Tokens
 export function estimateTokens(text) {
     if (!text) return 0;
-    return Math.ceil(text.length / 4);
+    const wordCount = text.split(/\s+/).length;
+    const charCount = text.length;
+    const wordBasedTokens = Math.ceil(wordCount * 1.33);
+    const charBasedTokens = Math.ceil(charCount / 3.5);
+    const hybridEstimate = Math.ceil((wordBasedTokens + charBasedTokens) / 2);
+    return hybridEstimate;
 }
 
 // Get Context
