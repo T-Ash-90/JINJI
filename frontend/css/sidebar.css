@@ -50,3 +50,19 @@
   box-shadow: var(--shadow-md);
   outline: none;
 }
+
+#model-details p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+}
+
+#model-details strong {
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+#model-details span {
+    color: var(--color-text-muted);
+    font-weight: 400;
+}

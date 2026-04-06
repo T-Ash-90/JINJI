@@ -1,5 +1,5 @@
 /* -------------------------
-   Initilization Script
+   Initialization Script
 ------------------------- */
 
 import { setElements, history, setDefaultPrompt, modelSelector } from "./state.js";
@@ -39,11 +39,96 @@ async function loadModels() {
     updateSendButtonState();
 }
 
-/* -------------------------
-   Boot
-------------------------- */
+// Load Model Details
+async function loadModelDetails(modelName) {
+    try {
+        const res = await fetch(`http://localhost:8000/models/${modelName}`);
+        const data = await res.json();
 
-window.onload = async () => {
+        if (data.model_info) {
+            const modelInfoText = data.model_info;
+            const modelInfo = parseModelInfo(modelInfoText);
+            console.log("Parsed model info:", modelInfo);
+
+            document.getElementById("architecture").textContent = modelInfo.architecture || "N/A";
+            document.getElementById("parameters").textContent = modelInfo.parameters || "N/A";
+            document.getElementById("context-length").textContent = modelInfo.contextLength || "N/A";
+            document.getElementById("embedding-length").textContent = modelInfo.embeddingLength || "N/A";
+            document.getElementById("quantization").textContent = modelInfo.quantization || "N/A";
+            document.getElementById("model-details").style.display = "block";
+        }
+    } catch (error) {
+        console.error("Error loading model details:", error);
+    }
+}
+
+// Helper function to parse model info text
+function parseModelInfo(modelInfoText) {
+    const modelInfo = {};
+    const lines = modelInfoText.split("\n");
+
+    lines.forEach(line => {
+        line = line.trim();
+
+        if (line.length === 0) return;
+
+        if (line.startsWith("architecture")) {
+            modelInfo.architecture = line.split(/\s+/).slice(1).join(" ").trim();
+        } else if (line.startsWith("parameters")) {
+            modelInfo.parameters = line.split(/\s+/).slice(1).join(" ").trim();
+        } else if (line.startsWith("context")) {
+            modelInfo.contextLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
+        } else if (line.startsWith("embedding")) {
+            modelInfo.embeddingLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
+        } else if (line.startsWith("quantization")) {
+            modelInfo.quantization = line.split(/\s+/).slice(1).join(" ").trim();
+        }
+    });
+
+    return modelInfo;
+}
+
+// Modify the modelSelector event listener to load model details when a model is selected
+document.addEventListener("DOMContentLoaded", () => {
+    const modelSelector = document.getElementById("model-selector");
+
+    // Initially hide the model details section
+    const modelDetailsSection = document.getElementById("model-details");
+    if (modelDetailsSection) {
+        modelDetailsSection.style.display = "none";
+    }
+
+    if (modelSelector) {
+        modelSelector.addEventListener("change", () => {
+            const selectedModel = modelSelector.value;
+            if (selectedModel) {
+                loadModelDetails(selectedModel);
+            } else {
+                // Hide model details if no model is selected
+                if (modelDetailsSection) {
+                    modelDetailsSection.style.display = "none";
+                }
+            }
+        });
+    }
+});
+
+// Modify the modelSelector event listener to load model details when a model is selected
+document.addEventListener("DOMContentLoaded", () => {
+    const modelSelector = document.getElementById("model-selector");
+
+    if (modelSelector) {
+        modelSelector.addEventListener("change", () => {
+            const selectedModel = modelSelector.value;
+            if (selectedModel) {
+                loadModelDetails(selectedModel);
+            }
+        });
+    }
+
+    /* -------------------------
+       Boot
+    ------------------------- */
     const elements = {
         inputField: document.getElementById("input"),
         sendButton: document.getElementById("send-button"),
@@ -82,7 +167,7 @@ window.onload = async () => {
     });
 
     updateSendButtonState();
-};
+});
 
 document.addEventListener("click", async (e) => {
     const btn = e.target.closest(".copy-btn");
