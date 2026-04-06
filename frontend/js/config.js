@@ -2,8 +2,8 @@
    Configuration File
 ------------------------- */
 
-export const MAX_MESSAGES = 5;
-export const MAX_CONTEXT_TOKENS = 2500;
+export const MAX_MESSAGES = 10;
+export const MAX_CONTEXT_TOKENS = 5000;
 
 export const CONFIG = {
     systemPrompt: `
