@@ -2,7 +2,25 @@
    Utilities
 ------------------------- */
 
-//Copy to clipboard
+import {
+    MAX_MESSAGES,
+    MAX_CONTEXT_TOKENS,
+    CONFIG,
+} from "./config.js";
+
+/* -------------------------
+   Enable Send Button
+------------------------- */
+export function enableSendButton() {
+    const sendButton = document.getElementById("send-button");
+    if (sendButton) {
+        sendButton.disabled = false;
+    }
+}
+
+/* -------------------------
+   Copy to Clipboard
+------------------------- */
 export async function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
         try {
@@ -31,7 +49,17 @@ export async function copyToClipboard(text) {
     }
 }
 
-// Helper to append context and token info
+/* -------------------------
+   Estimate Tokens
+------------------------- */
+export function estimateTokens(text) {
+    if (!text) return 0;
+    return Math.ceil(text.length / 4);
+}
+
+/* -------------------------
+   Append Context and Token Info
+------------------------- */
 export function appendContextAndTokenInfo(contextFiles, tokenInfo) {
     const box = document.getElementById("chat-box");
 
@@ -60,16 +88,24 @@ export function appendContextAndTokenInfo(contextFiles, tokenInfo) {
     box.appendChild(infoDiv);
 }
 
-// Helper to estimate tokens
-export function estimateTokens(text) {
-    if (!text) return 0;
-    return Math.ceil(text.length / 4);
+/* -------------------------
+   Trim History
+------------------------- */
+export function buildTrimmedHistory(history) {
+    const systemMessages = history.filter(m => m.role === "system");
+    const nonSystemMessages = history.filter(m => m.role !== "system");
+
+    const trimmed = nonSystemMessages.slice(-MAX_MESSAGES);
+
+    return [...systemMessages, ...trimmed];
 }
 
-// Enable Send Button
-export function enableSendButton() {
-    const sendButton = document.getElementById("send-button");
-    if (sendButton) {
-        sendButton.disabled = false;
+export function trimContextToTokenLimit(context) {
+    let trimmed = context;
+
+    while (estimateTokens(trimmed) > MAX_CONTEXT_TOKENS) {
+        trimmed = trimmed.slice(0, Math.floor(trimmed.length * 0.9));
     }
+
+    return trimmed;
 }

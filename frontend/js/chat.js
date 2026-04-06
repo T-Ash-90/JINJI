@@ -3,9 +3,17 @@
 ------------------------- */
 
 import {
+    MAX_MESSAGES,
+    MAX_CONTEXT_TOKENS,
+    CONFIG,
+} from "./config.js";
+
+import {
     appendContextAndTokenInfo,
     estimateTokens,
-    enableSendButton
+    enableSendButton,
+    buildTrimmedHistory,
+    trimContextToTokenLimit
 } from './utils.js';
 
 import {
@@ -82,9 +90,13 @@ export async function sendMessage() {
     if (contextToggle.checked) {
         try {
             Context = await getContext();
+
+            Context = trimContextToTokenLimit(Context);
+
             contextFiles = Context.split('\n')
                 .filter(line => line.startsWith('Path:'))
                 .map(line => line.replace('Path: ', '').trim());
+
         } catch (err) {
             console.error("Failed to fetch context:", err);
         }
@@ -95,23 +107,33 @@ export async function sendMessage() {
             userTokens: estimateTokens(text),
             totalTokens: 0,
         };
-        tokenInfo.totalTokens = tokenInfo.systemTokens + tokenInfo.contextTokens + tokenInfo.userTokens;
+
+        tokenInfo.totalTokens =
+            tokenInfo.systemTokens +
+            tokenInfo.contextTokens +
+            tokenInfo.userTokens;
 
         logChatDebug({
             context: Context,
             userInput: text,
         });
+
         appendContextAndTokenInfo(contextFiles, tokenInfo);
     }
 
-    const botDiv = appendMessage("bot", `<em class="thinking">JINJI is thinking...</em>`);
+    const botDiv = appendMessage(
+        "bot",
+        `<em class="thinking">JINJI is thinking...</em>`
+    );
 
-    const effectiveHistory = [...history];
+    let effectiveHistory = buildTrimmedHistory(history);
+
     if (Context) {
         effectiveHistory.unshift({
             role: "system",
             content: `Here is the code context:\n\n${Context}`,
         });
+        effectiveHistory = buildTrimmedHistory(effectiveHistory);
     }
 
     let fullReply = "";
@@ -123,7 +145,11 @@ export async function sendMessage() {
         const res = await fetch("http://localhost:8000/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text, history: effectiveHistory, model }),
+            body: JSON.stringify({
+                message: text,
+                history: effectiveHistory,
+                model
+            }),
             signal: controller.signal,
         });
 
@@ -147,9 +173,11 @@ export async function sendMessage() {
 
         if (fullReply.trim()) {
             botDiv.innerHTML = renderMarkdown(fullReply);
+
             history.push({ role: "user", content: text });
             history.push({ role: "assistant", content: fullReply });
         }
+
     } catch (err) {
         if (err.name === "AbortError") {
             botDiv.innerHTML += "<p><em>⛔ Generation stopped.</em></p>";
