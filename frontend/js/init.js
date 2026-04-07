@@ -5,66 +5,12 @@
 import { setElements, history, setDefaultPrompt, modelSelector } from "./state.js";
 import { CONFIG } from "./config.js";
 import { sendMessage } from "./chat.js";
-import { copyToClipboard, updateSendButtonState, stopGeneration, parseModelInfo, trackScroll } from "./utils.js";
+import { copyToClipboard, updateSendButtonState, stopGeneration, trackScroll } from "./utils.js";
+import { loadModels, loadModelDetails } from "./models.js";
 
 /* -------------------------
-   Load Models and Model Info
+   Boot
 ------------------------- */
-
-// Load Models
-async function loadModels() {
-    try {
-        const res = await fetch("http://localhost:8000/models");
-        const data = await res.json();
-
-        modelSelector.innerHTML = "";
-        console.log("modelSelector:", modelSelector);
-
-        const def = document.createElement("option");
-        def.textContent = "-- Select a model --";
-        def.value = "";
-        def.disabled = true;
-        def.selected = true;
-        modelSelector.appendChild(def);
-
-        if (data.status === "ok") {
-            data.models.forEach(model => {
-                const opt = document.createElement("option");
-                opt.value = model;
-                opt.textContent = model;
-                modelSelector.appendChild(opt);
-            });
-        }
-
-    } catch {
-        modelSelector.innerHTML = "<option>Error loading models</option>";
-    }
-
-    updateSendButtonState();
-}
-
-// Load Model Details
-async function loadModelDetails(modelName) {
-    try {
-        const res = await fetch(`http://localhost:8000/models/${modelName}`);
-        const data = await res.json();
-
-        if (data.model_info) {
-            const modelInfoText = data.model_info;
-            const modelInfo = parseModelInfo(modelInfoText);
-            console.log("Parsed model info:", modelInfo);
-
-            document.getElementById("architecture").textContent = modelInfo.architecture || "N/A";
-            document.getElementById("parameters").textContent = modelInfo.parameters || "N/A";
-            document.getElementById("context-length").textContent = modelInfo.contextLength || "N/A";
-            document.getElementById("embedding-length").textContent = modelInfo.embeddingLength || "N/A";
-            document.getElementById("quantization").textContent = modelInfo.quantization || "N/A";
-            document.getElementById("model-details").style.display = "block";
-        }
-    } catch (error) {
-        console.error("Error loading model details:", error);
-    }
-}
 
 document.addEventListener("DOMContentLoaded", () => {
     const modelSelector = document.getElementById("model-selector");
@@ -100,9 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* -------------------------
-       Boot
-    ------------------------- */
     const elements = {
         inputField: document.getElementById("input"),
         sendButton: document.getElementById("send-button"),

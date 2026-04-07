@@ -18,7 +18,7 @@ export function estimateTokens(text) {
     return hybridEstimate;
 }
 
-// Get Context
+// Get Context from API
 export async function getContext() {
     try {
         console.log("[getContext] Starting context fetch...");

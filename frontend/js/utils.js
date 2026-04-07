@@ -3,6 +3,7 @@
 ------------------------- */
 
 import { inputField, sendButton, stopButton, modelSelector, currentController } from "./state.js";
+import { isModelSelected } from "./models.js";
 
 let autoScrollEnabled = true;
 
@@ -43,11 +44,6 @@ export function trackScroll() {
             autoScrollEnabled = true;
         }
     });
-}
-
-// Model Selector
-export function isModelSelected() {
-    return modelSelector.value && modelSelector.value.trim() !== "";
 }
 
 // Input Text Utility
@@ -122,30 +118,4 @@ export async function copyToClipboard(text) {
     } catch {
         return false;
     }
-}
-
-// Parse Model Info
-export function parseModelInfo(modelInfoText) {
-    const modelInfo = {};
-    const lines = modelInfoText.split("\n");
-
-    lines.forEach(line => {
-        line = line.trim();
-
-        if (line.length === 0) return;
-
-        if (line.startsWith("architecture")) {
-            modelInfo.architecture = line.split(/\s+/).slice(1).join(" ").trim();
-        } else if (line.startsWith("parameters")) {
-            modelInfo.parameters = line.split(/\s+/).slice(1).join(" ").trim();
-        } else if (line.startsWith("context")) {
-            modelInfo.contextLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
-        } else if (line.startsWith("embedding")) {
-            modelInfo.embeddingLength = line.split(/\s+/).slice(1).join(" ").trim().replace(/length/, "");
-        } else if (line.startsWith("quantization")) {
-            modelInfo.quantization = line.split(/\s+/).slice(1).join(" ").trim();
-        }
-    });
-
-    return modelInfo;
 }
