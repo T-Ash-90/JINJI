@@ -3,14 +3,11 @@
 ------------------------- */
 
 import { CONFIG } from './config.js';
-import { history, currentController, DEFAULT_SYSTEM_PROMPT, inputField, modelSelector, setController } from "./state.js";
+import { history, currentController, inputField, modelSelector, setController } from "./state.js";
 import { setGeneratingState, enableSendButton, stopGeneration, resetContextToggle, scrollToBottom, autoscroll} from "./utils.js";
 import { getContext, appendContext, trimContext, estimateTokens, trimHistory} from "./context.js";
 import { renderMarkdown } from "./markdown.js";
 import { logChatDebug } from "./logs.js";
-
-const MAX_MESSAGES = CONFIG.maxMessages;
-const MAX_CONTEXT_TOKENS = CONFIG.maxContextTokens;
 
 // Append Message
 export function appendMessage(role, text) {
@@ -50,7 +47,7 @@ export function appendMessage(role, text) {
 // Send Message
 export async function sendMessage() {
     if (!history.length || history[0].role !== "system") {
-        history.unshift({ role: "system", content: DEFAULT_SYSTEM_PROMPT });
+        history.unshift({ role: "system", content: CONFIG.systemPrompt });
     }
 
     const text = inputField.value.trim();
@@ -81,7 +78,7 @@ export async function sendMessage() {
         }
 
         let tokenInfo = {
-            systemTokens: estimateTokens(DEFAULT_SYSTEM_PROMPT),
+            systemTokens: estimateTokens(CONFIG.systemPrompt),
             contextTokens: estimateTokens(Context),
             userTokens: estimateTokens(text),
             totalTokens: 0,

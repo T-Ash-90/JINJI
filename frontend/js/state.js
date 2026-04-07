@@ -2,9 +2,10 @@
    State
 ------------------------- */
 
+import { CONFIG } from './config.js';
+
 export let history = [];
 export let currentController = null;
-export let DEFAULT_SYSTEM_PROMPT = "";
 export let inputField;
 export let sendButton;
 export let stopButton;
@@ -17,7 +18,7 @@ export function setController(controller) {
 
 // Set Default Prompt
 export function setDefaultPrompt(prompt) {
-    DEFAULT_SYSTEM_PROMPT = prompt;
+    CONFIG.systemPrompt = prompt;
 }
 
 // Set Elements

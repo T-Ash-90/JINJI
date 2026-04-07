@@ -4,9 +4,6 @@
 
 import { CONFIG } from './config.js';
 
-const MAX_MESSAGES = CONFIG.maxMessages;
-const MAX_CONTEXT_TOKENS = CONFIG.maxContextTokens;
-
 // Estimate Tokens
 export function estimateTokens(text) {
     if (!text) return 0;
@@ -109,7 +106,7 @@ export async function getContext() {
 export function trimContext(context) {
     let trimmed = context;
 
-    while (estimateTokens(trimmed) > MAX_CONTEXT_TOKENS) {
+    while (estimateTokens(trimmed) > CONFIG.maxContextTokens) {
         trimmed = trimmed.slice(0, Math.floor(trimmed.length * 0.9));
     }
 
@@ -141,7 +138,7 @@ export function trimHistory(history) {
     const systemMessages = history.filter(m => m.role === "system");
     const nonSystemMessages = history.filter(m => m.role !== "system");
 
-    const trimmed = nonSystemMessages.slice(-MAX_MESSAGES);
+    const trimmed = nonSystemMessages.slice(-CONFIG.maxMessages);
 
     return [...systemMessages, ...trimmed];
 }
