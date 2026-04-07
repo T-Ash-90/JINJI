@@ -4,7 +4,7 @@
 
 import { CONFIG } from './config.js';
 import { history, currentController, DEFAULT_SYSTEM_PROMPT, inputField, modelSelector, setController } from "./state.js";
-import { setGeneratingState, enableSendButton, stopGeneration, resetContextToggle} from "./utils.js";
+import { setGeneratingState, enableSendButton, stopGeneration, resetContextToggle, scrollToBottom, autoscroll} from "./utils.js";
 import { getContext, appendContext, trimContext, estimateTokens, trimHistory} from "./context.js";
 import { renderMarkdown } from "./markdown.js";
 import { logChatDebug } from "./logs.js";
@@ -15,6 +15,7 @@ const MAX_CONTEXT_TOKENS = CONFIG.maxContextTokens;
 // Append Message
 export function appendMessage(role, text) {
     const box = document.getElementById("chat-box");
+    scrollToBottom();
 
     const div = document.createElement("div");
     div.classList.add("message", role);
@@ -105,6 +106,8 @@ export async function sendMessage() {
         "bot",
         `<em class="thinking">JINJI is thinking...</em>`
     );
+    scrollToBottom()
+    autoscroll()
 
     let effectiveHistory = trimHistory(history);
 
@@ -150,6 +153,7 @@ export async function sendMessage() {
             }
 
             botDiv.innerHTML = renderMarkdown(fullReply);
+            autoscroll()
         }
 
         if (fullReply.trim()) {

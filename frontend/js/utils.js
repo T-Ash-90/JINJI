@@ -4,6 +4,47 @@
 
 import { inputField, sendButton, stopButton, modelSelector, currentController } from "./state.js";
 
+let autoScrollEnabled = true;
+
+// Scroll To Bottom
+export function scrollToBottom() {
+    const chatBox = document.getElementById("chat-box");
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+// Autoscroll
+export function autoscroll() {
+    const chatBox = document.getElementById("chat-box");
+    if (!chatBox) return;
+
+    const distanceFromBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight;
+
+    if (distanceFromBottom < 25) {
+        autoScrollEnabled = true;
+    }
+
+    if (autoScrollEnabled) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+// Track Scroll
+export function trackScroll() {
+    const chatBox = document.getElementById("chat-box");
+    if (!chatBox) return;
+
+    chatBox.addEventListener("scroll", () => {
+        const distanceFromBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight;
+        if (distanceFromBottom > 25) {
+            autoScrollEnabled = false;
+        } else {
+            autoScrollEnabled = true;
+        }
+    });
+}
+
 // Model Selector
 export function isModelSelected() {
     return modelSelector.value && modelSelector.value.trim() !== "";

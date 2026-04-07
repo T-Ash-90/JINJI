@@ -5,7 +5,7 @@
 import { setElements, history, setDefaultPrompt, modelSelector } from "./state.js";
 import { CONFIG } from "./config.js";
 import { sendMessage } from "./chat.js";
-import { copyToClipboard, updateSendButtonState, stopGeneration, parseModelInfo } from "./utils.js";
+import { copyToClipboard, updateSendButtonState, stopGeneration, parseModelInfo, trackScroll } from "./utils.js";
 
 /* -------------------------
    Load Models and Model Info
@@ -110,13 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
         modelSelector: document.getElementById("model-selector")
     };
 
+    trackScroll()
     setElements(elements);
-
     setDefaultPrompt(
         (CONFIG.systemPrompt && CONFIG.systemPrompt.trim()) ||
         "You are a helpful assistant."
     );
-
     loadModels();
 
     elements.sendButton.onclick = sendMessage;
