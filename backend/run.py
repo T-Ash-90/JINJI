@@ -6,7 +6,7 @@ import atexit
 import os
 import requests
 import time
-from backend.logs import process_log_line, setup_logging, log
+from logs import process_log_line, setup_logging, log
 import uvicorn
 
 OLLAMA_URL = "http://localhost:11434"
@@ -78,7 +78,7 @@ def start_fastapi():
     global uvicorn_server
     log("Starting FastAPI server...", "SERVER", "APP")
     config = uvicorn.Config(
-        "backend.server:app",
+        "server:app",
         host="127.0.0.1",
         port=8000,
         reload=False,

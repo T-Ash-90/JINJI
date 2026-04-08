@@ -133,7 +133,7 @@ export function appendContext(contextFiles) {
     box.appendChild(infoDiv);
 }
 
-//Trim History
+// Trim History
 export function trimHistory(history) {
     const systemMessages = history.filter(m => m.role === "system");
     const nonSystemMessages = history.filter(m => m.role !== "system");

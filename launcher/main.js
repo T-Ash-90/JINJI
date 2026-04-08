@@ -13,13 +13,13 @@ function startBackend() {
 
   if (process.platform === 'win32') {
     // Windows
-    python = path.join(__dirname, '.venv', 'Scripts', 'python.exe');
+    python = path.join(__dirname, '../.venv', 'Scripts', 'python.exe');
   } else {
     // macOS / Linux
-    python = path.join(__dirname, '.venv', 'bin', 'python');
+    python = path.join(__dirname, '../.venv', 'bin', 'python');
   }
 
-  const script = path.join(__dirname, 'run.py');
+  const script = path.join(__dirname, '../backend/run.py');
 
   backendProcess = spawn(python, [script], {
     stdio: 'inherit',
@@ -80,7 +80,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, 'frontend/assets/images/logo.png'),
+    icon: path.join(__dirname, '../frontend/assets/images/logo.png'),
   });
 
   win.loadURL('http://127.0.0.1:8000');

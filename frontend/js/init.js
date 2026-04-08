@@ -8,9 +8,6 @@ import { sendMessage } from "./chat.js";
 import { copyToClipboard, updateSendButtonState, stopGeneration, trackScroll } from "./utils.js";
 import { loadModels, loadModelDetails } from "./models.js";
 
-/* -------------------------
-   Boot
-------------------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
     const modelSelector = document.getElementById("model-selector");
