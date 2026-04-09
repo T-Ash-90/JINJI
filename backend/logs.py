@@ -3,6 +3,11 @@ import logging
 import re
 
 # -------------------------
+# Config
+# -------------------------
+DEBUG_OLLAMA = False  # change to True to view all logs
+
+# -------------------------
 # Log levels and styles
 # -------------------------
 LEVEL_STYLES = {
@@ -18,12 +23,48 @@ LEVEL_STYLES = {
 RESET_COLOR = "\033[0m"
 
 # -------------------------
+# Allowlist
+# -------------------------
+ALLOW_PATTERNS = [
+    # errors
+    "error",
+    "failed",
+
+    # lifecycle
+    "starting",
+    "listening",
+    "server",
+
+    # model lifecycle
+    "loading model",
+    "model loaded",
+
+    # runner lifecycle
+    "runner started",
+    "loaded runners",
+
+    # useful signals
+    "context",
+    "n_ctx",
+]
+
+# -------------------------
 # Core log function
 # -------------------------
 def log(message: str, level: str = "INFO", source: str = "APP"):
     ts = datetime.now().strftime("%H:%M:%S")
     icon, color = LEVEL_STYLES.get(level, ("ℹ️", "\033[97m"))
     print(f"[{ts}] {color}{icon} [{level:<6}] [{source:<6}]{RESET_COLOR} {message}")
+
+# -------------------------
+# Allow filter
+# -------------------------
+def should_log(line: str) -> bool:
+    if DEBUG_OLLAMA:
+        return True
+
+    l = line.lower()
+    return any(p in l for p in ALLOW_PATTERNS)
 
 # -------------------------
 # Normalize Ollama logs
@@ -33,34 +74,50 @@ def normalize_ollama_line(line: str):
     message = msg_match.group(1) if msg_match else line.strip()
 
     l = message.lower()
+
     if "error" in l or "failed" in l:
         level = "ERROR"
-    elif "runner" in l or "server" in l:
+    elif "runner started" in l or "server" in l:
         level = "SERVER"
-    elif "model" in l or "load" in l:
+    elif "loading model" in l or "model" in l:
         level = "MODEL"
     elif "gpu" in l or "cpu" in l:
         level = "SYSTEM"
-    elif "post" in l or "get" in l or "request" in l:
-        level = "API"
     else:
         level = "INFO"
+
+    message = cleanup_ollama_message(message)
 
     return message, level
 
 # -------------------------
-# Normalize FastAPI / Uvicorn logs
+# Cleanup noisy fragments
+# -------------------------
+def cleanup_ollama_message(message: str) -> str:
+    message = re.sub(r'time=.*?msg=', '', message)
+
+    if len(message) > 120:
+        message = message[:120] + "..."
+
+    return message.strip()
+
+# -------------------------
+# Normalize FastAPI logs
 # -------------------------
 def normalize_fastapi_line(line: str):
     line = line.strip()
+
     if not line:
         return "", "INFO"
+
     if " - " in line and ("POST" in line or "GET" in line):
         return line, "API"
-    if line.startswith("INFO:") or line.startswith("WARNING:") or line.startswith("ERROR:"):
+
+    if line.startswith(("INFO:", "WARNING:", "ERROR:")):
         parts = line.split(" - ", 1)
         if len(parts) == 2:
             return parts[1].strip(), "API"
+
     return line, "INFO"
 
 # -------------------------
@@ -71,19 +128,25 @@ def process_log_line(line: str, source: str = "APP"):
         return
 
     line = line.strip()
-    if "msg=" in line or "load_tensors" in line or "llama" in line:
+
+    if not should_log(line):
+        return
+
+    if "msg=" in line or "llama" in line:
         message, level = normalize_ollama_line(line)
         source = "OLLAMA"
+
     elif "HTTP/" in line or "[GIN]" in line or "INFO:" in line:
         message, level = normalize_fastapi_line(line)
         source = "APP"
+
     else:
         message, level = line, "INFO"
 
     log(message, level, source)
 
 # -------------------------
-# Intercept Uvicorn / FastAPI logs
+# Intercept logging
 # -------------------------
 class InterceptHandler(logging.Handler):
     def emit(self, record):
@@ -91,11 +154,20 @@ class InterceptHandler(logging.Handler):
             message = self.format(record)
         except Exception:
             message = record.getMessage()
+
         process_log_line(message, source="APP")
 
+# -------------------------
+# Setup logging
+# -------------------------
 def setup_logging():
     handler = InterceptHandler()
-    logging.basicConfig(handlers=[handler], level=logging.INFO, force=True)
+
+    logging.basicConfig(
+        handlers=[handler],
+        level=logging.INFO,
+        force=True
+    )
 
     for name in ["uvicorn", "uvicorn.error", "uvicorn.access"]:
         logger = logging.getLogger(name)
