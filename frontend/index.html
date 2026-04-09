@@ -25,7 +25,18 @@
           <option>Loading...</option>
         </select>
       </div>
-      <div id="model-details" class="model-details"><br>
+      <div id="context-length-container"><br>
+          <label for="context-length-slider">
+              <strong>Context Length:</strong> <span id="context-length-label">16384</span>
+          </label>
+          <input type="range"
+                 id="context-length-slider"
+                 min="4096"
+                 max="32768"
+                 step="4096"
+                 value="16384">
+      </div>
+      <div id="model-details" class="model-details">
           <p><strong>Architecture:</strong><br><span id="architecture"></span></p>
           <p><strong>Parameters:</strong><br><span id="parameters"></span></p>
           <p><strong>Max Context Length:</strong><br><span id="context-length"></span></p>

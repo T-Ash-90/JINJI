@@ -2,6 +2,7 @@
    Models Logic
 ------------------------- */
 
+import { CONFIG } from './config.js';
 import { modelSelector } from "./state.js";
 import { updateSendButtonState } from "./utils.js";
 
@@ -89,4 +90,19 @@ function parseModelInfo(modelInfoText) {
 // Model Selector
 export function isModelSelected() {
     return modelSelector.value && modelSelector.value.trim() !== "";
+}
+
+// Set maxTokens dynamically.
+export function setMaxTokens(value) {
+    CONFIG.maxTokens = value;
+    localStorage.setItem("maxTokens", value);
+    console.log(`Updated maxTokens to ${CONFIG.maxTokens}`);
+}
+
+// Initialize maxTokens from localStorage if available
+export function loadMaxTokens() {
+    const stored = localStorage.getItem("maxTokens");
+    if (stored) {
+        CONFIG.maxTokens = parseInt(stored, 10);
+    }
 }

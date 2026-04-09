@@ -6,7 +6,7 @@ import { setElements, history, setDefaultPrompt } from "./state.js";
 import { CONFIG } from "./config.js";
 import { sendMessage } from "./chat.js";
 import { copyToClipboard, updateSendButtonState, stopGeneration, trackScroll } from "./utils.js";
-import { loadModels, loadModelDetails } from "./models.js";
+import { loadModels, loadModelDetails, loadMaxTokens, setMaxTokens } from "./models.js";
 
 // Main Script
 document.addEventListener("DOMContentLoaded", () => {
@@ -43,6 +43,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const contextSlider = document.getElementById("context-length-slider");
+    const contextLabel = document.getElementById("context-length-label");
+
+    if (contextSlider && contextLabel) {
+        contextLabel.textContent = CONFIG.maxTokens;
+        contextSlider.value = CONFIG.maxTokens;
+
+        contextSlider.addEventListener("input", (e) => {
+            const value = parseInt(e.target.value, 10);
+            contextLabel.textContent = value;
+            setMaxTokens(value);
+        });
+    }
+
     trackScroll();
     setElements(elements);
     setDefaultPrompt(
@@ -50,6 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "You are a helpful assistant."
     );
     loadModels();
+    loadMaxTokens();
+    console.log("Current maxTokens:", CONFIG.maxTokens);
 
     elements.sendButton.onclick = sendMessage;
     elements.stopButton.onclick = stopGeneration;

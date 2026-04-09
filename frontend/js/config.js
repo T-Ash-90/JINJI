@@ -2,6 +2,7 @@
    Configuration File
 ------------------------- */
 
+// Configuration Constants
 export const CONFIG = {
     maxTokens: 16384,
     contextApiEndpoint: "http://127.0.0.1:8765/files",
