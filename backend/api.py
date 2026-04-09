@@ -6,6 +6,7 @@ import httpx
 import json
 import math
 from logs import log
+import tiktoken
 
 router = APIRouter()
 
@@ -21,18 +22,6 @@ class ChatRequest(BaseModel):
     model: str
     options: dict = None
 
-# -------------------------
-# Token estimation
-# -------------------------
-def estimate_tokens(text: str) -> int:
-    if not text:
-        return 0
-    word_count = len(text.split())
-    char_count = len(text)
-    word_based_tokens = math.ceil(word_count * 1.33)
-    char_based_tokens = math.ceil(char_count / 3.5)
-    hybrid_estimate = math.ceil((word_based_tokens + char_based_tokens) / 2)
-    return hybrid_estimate
 
 # -------------------------
 # Async Ollama Stream
@@ -62,6 +51,34 @@ async def stream_ollama(request: Request, messages, model, options=None):
                             continue
     except httpx.RequestError as e:
         log(f"HTTPX error: {e}", "ERROR", "CHAT")
+
+
+# -------------------------
+# Token endpoint
+# -------------------------
+
+@router.post("/tokens")
+async def tokenize(req: Request):
+    body = await req.json()
+    text = body.get("text", "")
+    return {"tokens": estimate_tokens(text)}
+
+try:
+    ENCODER = tiktoken.get_encoding("cl100k_base")
+except Exception:
+    ENCODER = None
+
+def estimate_tokens(text: str) -> int:
+    if not text:
+        return 0
+
+    if ENCODER:
+        return len(ENCODER.encode(text))
+
+    word_count = len(text.split())
+    char_count = len(text)
+    return math.ceil((math.ceil(word_count * 1.33) + math.ceil(char_count / 3.5)) / 2)
+
 
 # -------------------------
 # Chat endpoint

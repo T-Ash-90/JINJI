@@ -5,11 +5,11 @@
 import { CONFIG } from "./config.js";
 import { estimateTokens } from "./context.js";
 
-// Chat Debug
-export function logChatDebug({ context = "", userInput = "" }) {
-    const systemTokens = estimateTokens(CONFIG.systemPrompt);
-    const contextTokens = estimateTokens(context);
-    const userTokens = estimateTokens(userInput);
+export async function logChatDebug({ context = "", userInput = "" }) {
+
+    const systemTokens = await estimateTokens(CONFIG.systemPrompt);
+    const contextTokens = await estimateTokens(context);
+    const userTokens = await estimateTokens(userInput);
     const totalTokens = systemTokens + contextTokens + userTokens;
 
     console.groupCollapsed("%c[Chat Debug]", "color: #0a0; font-weight: bold;");

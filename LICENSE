@@ -13,17 +13,8 @@ furnished to do so, subject to the following conditions:
 1. The above copyright notice and this permission notice shall be included
    in all copies or substantial portions of the Software.
 
-2. The following third-party libraries retain their
+2. The following included third-party libraries retain their
    original license notices:
-
-   - FastAPI (v0.101.1) | MIT License
-     © Sebastián Ramírez and contributors, MIT Licensed.
-     https://github.com/fastapi/fastapi
-
-   - Electron | MIT License
-     Included as a CSS theme for Highlight.js syntax highlighting
-     © Electron contributors
-     https://github.com/electron/electron
 
    - marked v15.0.12 | MIT License
      © Christopher Jeffrey

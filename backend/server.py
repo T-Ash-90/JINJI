@@ -14,6 +14,5 @@ app.add_middleware(
 )
 
 app.include_router(router)
-
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 app.mount("/assets", StaticFiles(directory="frontend/assets"), name="assets")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

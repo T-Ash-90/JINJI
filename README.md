@@ -1,6 +1,6 @@
-# JINJI - An Electron App for interacting with local LLMs.
+# JINJI - An Electron Frontend App for Ollama. Interact with locally hosted and cloud-based LLMs.
 
-JINJI is an intuitive, offline-first interface designed to seamlessly interact with locally installed LLMs powered by [Ollama](https://ollama.com/), offering an efficient and private AI experience without the need for an internet connection.
+JINJI is an intuitive, offline-first interface designed to seamlessly interact with locally installed LLMs powered by [Ollama](https://ollama.com/), offering an efficient and private AI experience without the need for an internet connection. You can, of course, also connect to cloud based LLMs via your Ollama account.
 
 ---
 
@@ -8,9 +8,10 @@ JINJI is an intuitive, offline-first interface designed to seamlessly interact w
 
 - Chat interface with a clean and interactive UI
 - Fully local execution with no external API calls
-- Support for multiple locally installed LLMs with [Ollama](https://ollama.com/)
+- Support for both locally installed and cloud-based LLMs with [Ollama](https://ollama.com/)
 - Easy model switching depending on the task
 - Optional context injection from a user-specified API endpoint
+- Token context control
 - Electron desktop app
 
 ---
@@ -135,11 +136,9 @@ Make sure to replace /path/to/JINJI/ with the actual path where JINJI is located
 
 **JINJI** © [Thomas Edward Ash](https://github.com/T-Ash-90). This software is released under the [MIT License](./LICENSE).
 
-### Third-Party Attributions & Acknowledgements
+### Included Third-Party Content
 
-- **FastAPI** (v0.101.1) — © Sebastián Ramírez and contributors, MIT Licensed. [GitHub repo](https://github.com/fastapi/fastapi). Used as the backend API framework.
-- **Electron** (v41.1.1) — © 2013–2023 GitHub, Inc., MIT Licensed. [GitHub repo](https://github.com/electron/electron). Used to build cross-platform desktop application.
-- **marked** (v15.0.12) — © 2011–2025 Christopher Jeffrey, MIT Licensed. [GitHub repo](https://github.com/markedjs/marked). Used for parsing Markdown. 
+- **marked** (v15.0.12) — © 2011–2025 Christopher Jeffrey, MIT Licensed. [GitHub repo](https://github.com/markedjs/marked). Used for parsing Markdown.
 - **DOMPurify** (v3.3.3) — © Cure53 and other contributors, released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) and [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). Used for safe sanitization of HTML/Markdown.   
 - **Highlight.js** (v11.9.0) — © Igor Sysoev and other contributors, BSD-3-Clause Licensed. [GitHub repo](https://github.com/highlightjs/highlight.js). Used for syntax highlighting in code blocks.  
 - **Atom One Dark Theme** (for Highlight.js) — © Alexander Gugel, BSD-3-Clause Licensed. [GitHub repo](https://github.com/highlightjs/highlight.js/tree/main/src/styles). Used as the code block styling theme.

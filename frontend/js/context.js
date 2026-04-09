@@ -5,15 +5,17 @@
 import { CONFIG } from './config.js';
 
 // Estimate Tokens
-export function estimateTokens(text) {
+export async function estimateTokens(text) {
     if (!text) return 0;
-    const wordCount = text.split(/\s+/).length;
-    const charCount = text.length;
-    const wordBasedTokens = Math.ceil(wordCount * 1.33);
-    const charBasedTokens = Math.ceil(charCount / 3.5);
-    const hybridEstimate = Math.ceil((wordBasedTokens + charBasedTokens) / 2);
-    return hybridEstimate;
+    const res = await fetch("http://localhost:8000/tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    return data.tokens;
 }
+
 
 // Get Context from API
 export async function getContext() {
@@ -96,21 +98,21 @@ export async function getContext() {
 }
 
 // Append Context
-export function appendContext(contextFiles) {
+export function appendContext(contextFiles, tokenInfo) {
     const box = document.getElementById("chat-box");
-
     const infoDiv = document.createElement("div");
     infoDiv.classList.add("info-message");
 
     const contextLabel = document.createElement("div");
     contextLabel.classList.add("info-label");
     contextLabel.textContent = "Context files:";
+
     const contextContent = document.createElement("div");
     contextContent.classList.add("info-content");
-    contextContent.textContent = contextFiles.join(",\n");
+
+    contextContent.textContent = `${contextFiles.join(",\n")}\n\nTokens: ${tokenInfo.totalTokens} (User: ${tokenInfo.userTokens}, Context: ${tokenInfo.contextTokens})`;
 
     infoDiv.appendChild(contextLabel);
     infoDiv.appendChild(contextContent);
-
     box.appendChild(infoDiv);
 }
