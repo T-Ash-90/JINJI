@@ -128,7 +128,7 @@ export async function sendMessage() {
                 history: effectiveHistory,
                 model,
                 options: {
-                    num_ctx: 16384
+                    num_ctx: CONFIG.maxTokens
                 }
             }),
             signal: controller.signal,
