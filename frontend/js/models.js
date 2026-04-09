@@ -22,12 +22,30 @@ export async function loadModels() {
         modelSelector.appendChild(def);
 
         if (data.status === "ok") {
+            const cloudGroup = document.createElement("optgroup");
+            cloudGroup.label = "Cloud Based Models";
+
+            const localGroup = document.createElement("optgroup");
+            localGroup.label = "Local Models";
+
             data.models.forEach(model => {
                 const opt = document.createElement("option");
                 opt.value = model;
                 opt.textContent = model;
-                modelSelector.appendChild(opt);
+
+                if (model.endsWith("-cloud")) {
+                    cloudGroup.appendChild(opt);
+                } else {
+                    localGroup.appendChild(opt);
+                }
             });
+
+            if (cloudGroup.contains(cloudGroup.firstChild) || cloudGroup.children.length > 0) {
+                modelSelector.appendChild(cloudGroup);
+            }
+            if (localGroup.contains(localGroup.firstChild) || localGroup.children.length > 0) {
+                modelSelector.appendChild(localGroup);
+            }
         }
 
     } catch {
