@@ -110,7 +110,7 @@ export function appendContext(contextFiles, tokenInfo) {
     const contextContent = document.createElement("div");
     contextContent.classList.add("info-content");
 
-    contextContent.textContent = `${contextFiles.join(",\n")}\n\nTokens: ${tokenInfo.totalTokens} (User: ${tokenInfo.userTokens}, Context: ${tokenInfo.contextTokens})`;
+    contextContent.textContent = `${contextFiles.join(",\n")}\n\nContext Tokens: ${tokenInfo.contextTokens}`;
 
     infoDiv.appendChild(contextLabel);
     infoDiv.appendChild(contextContent);

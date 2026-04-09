@@ -75,17 +75,18 @@ export async function sendMessage() {
             console.error("Failed to fetch context:", err);
         }
 
-        let tokenInfo = {
-            systemTokens: estimateTokens(CONFIG.systemPrompt),
-            contextTokens: estimateTokens(Context),
-            userTokens: estimateTokens(text),
-            totalTokens: 0,
-        };
+        const [systemTokens, contextTokens, userTokens] = await Promise.all([
+            estimateTokens(CONFIG.systemPrompt),
+            estimateTokens(Context),
+            estimateTokens(text)
+        ]);
 
-        tokenInfo.totalTokens =
-            tokenInfo.systemTokens +
-            tokenInfo.contextTokens +
-            tokenInfo.userTokens;
+        const tokenInfo = {
+            systemTokens,
+            contextTokens,
+            userTokens,
+            totalTokens: systemTokens + contextTokens + userTokens
+        };
 
         appendContext(contextFiles, tokenInfo);
     }
