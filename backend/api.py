@@ -15,23 +15,24 @@ class ChatRequest(BaseModel):
     message: str
     history: list = []
     model: str
+    options: dict = None
 
 
 # -------------------------
 # Async Ollama Stream
 # -------------------------
-async def stream_ollama(request: Request, messages, model):
-    async with httpx.AsyncClient(timeout=None) as client:
-        try:
-            async with client.stream(
-                "POST",
-                OLLAMA_URL,
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "stream": True
-                }
-            ) as response:
+async def stream_ollama(request: Request, messages, model, options=None):
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": True
+    }
+    if options:
+        payload["options"] = options
+
+    try:
+        async with httpx.AsyncClient(timeout=None) as client:
+            async with client.stream("POST", OLLAMA_URL, json=payload) as response:
 
                 async for line in response.aiter_lines():
                     if await request.is_disconnected():
@@ -46,8 +47,8 @@ async def stream_ollama(request: Request, messages, model):
                         except json.JSONDecodeError:
                             continue
 
-        except httpx.RequestError as e:
-            print("HTTPX error:", str(e))
+    except httpx.RequestError as e:
+        print("HTTPX error:", str(e))
 
 
 # -------------------------
@@ -63,8 +64,10 @@ async def chat(req: ChatRequest, request: Request):
 
     messages = req.history + [{"role": "user", "content": req.message}]
 
+    options = getattr(req, "options", None)
+
     return StreamingResponse(
-        stream_ollama(request, messages, req.model),
+        stream_ollama(request, messages, req.model, options),
         media_type="text/plain"
     )
 

@@ -12,7 +12,6 @@ export async function loadModels() {
         const data = await res.json();
 
         modelSelector.innerHTML = "";
-        console.log("modelSelector:", modelSelector);
 
         const def = document.createElement("option");
         def.textContent = "-- Select a model --";
@@ -46,7 +45,6 @@ export async function loadModelDetails(modelName) {
         if (data.model_info) {
             const modelInfoText = data.model_info;
             const modelInfo = parseModelInfo(modelInfoText);
-            console.log("Parsed model info:", modelInfo);
 
             document.getElementById("architecture").textContent = modelInfo.architecture || "N/A";
             document.getElementById("parameters").textContent = modelInfo.parameters || "N/A";
@@ -54,6 +52,8 @@ export async function loadModelDetails(modelName) {
             document.getElementById("embedding-length").textContent = modelInfo.embeddingLength || "N/A";
             document.getElementById("quantization").textContent = modelInfo.quantization || "N/A";
             document.getElementById("model-details").style.display = "block";
+
+            console.log("Parsed model info:", modelInfo);
         }
     } catch (error) {
         console.error("Error loading model details:", error);

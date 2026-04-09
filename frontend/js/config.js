@@ -3,8 +3,6 @@
 ------------------------- */
 
 export const CONFIG = {
-    maxMessages: 10,
-    maxContextTokens: 10000,
     contextApiEndpoint: "http://127.0.0.1:8765/files",
     systemPrompt: `
         You are a helpful coding assistant named JINJI, who also happens to be a cat.

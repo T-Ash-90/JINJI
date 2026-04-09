@@ -18,8 +18,6 @@ export function estimateTokens(text) {
 // Get Context from API
 export async function getContext() {
     try {
-        console.log("[getContext] Starting context fetch...");
-
         const toggleEl = document.getElementById("context-toggle");
         if (!toggleEl) {
             console.error("[getContext] Toggle element not found in DOM");
@@ -27,10 +25,8 @@ export async function getContext() {
         }
 
         const includeContext = toggleEl.checked;
-        console.log("[getContext] includeContext:", includeContext);
 
         if (!includeContext) {
-            console.log("[getContext] Context disabled, returning empty string");
             return "";
         }
 
@@ -40,9 +36,6 @@ export async function getContext() {
             console.warn("[getContext] No context API endpoint configured");
             return "";
         }
-
-        console.log("[getContext] Using endpoint:", endpoint);
-        console.log("[getContext] Sending request to local API...");
 
         const res = await fetch(endpoint, {
             method: "POST",
@@ -102,17 +95,6 @@ export async function getContext() {
     }
 }
 
-// Trim Context
-export function trimContext(context) {
-    let trimmed = context;
-
-    while (estimateTokens(trimmed) > CONFIG.maxContextTokens) {
-        trimmed = trimmed.slice(0, Math.floor(trimmed.length * 0.9));
-    }
-
-    return trimmed;
-}
-
 // Append Context
 export function appendContext(contextFiles) {
     const box = document.getElementById("chat-box");
@@ -131,14 +113,4 @@ export function appendContext(contextFiles) {
     infoDiv.appendChild(contextContent);
 
     box.appendChild(infoDiv);
-}
-
-// Trim History
-export function trimHistory(history) {
-    const systemMessages = history.filter(m => m.role === "system");
-    const nonSystemMessages = history.filter(m => m.role !== "system");
-
-    const trimmed = nonSystemMessages.slice(-CONFIG.maxMessages);
-
-    return [...systemMessages, ...trimmed];
 }

@@ -5,7 +5,7 @@
 import { CONFIG } from './config.js';
 import { history, currentController, inputField, modelSelector, setController } from "./state.js";
 import { setGeneratingState, enableSendButton, stopGeneration, resetContextToggle, scrollToBottom, autoscroll} from "./utils.js";
-import { getContext, appendContext, trimContext, estimateTokens, trimHistory} from "./context.js";
+import { getContext, appendContext, estimateTokens} from "./context.js";
 import { renderMarkdown } from "./markdown.js";
 import { logChatDebug } from "./logs.js";
 
@@ -67,8 +67,6 @@ export async function sendMessage() {
         try {
             Context = await getContext();
 
-            Context = trimContext(Context);
-
             contextFiles = Context.split('\n')
                 .filter(line => line.startsWith('Path:'))
                 .map(line => line.replace('Path: ', '').trim());
@@ -106,14 +104,13 @@ export async function sendMessage() {
     scrollToBottom()
     autoscroll()
 
-    let effectiveHistory = trimHistory(history);
+    let effectiveHistory = [...history];
 
     if (Context) {
         effectiveHistory.unshift({
             role: "system",
             content: `Here is the code context:\n\n${Context}`,
         });
-        effectiveHistory = trimHistory(effectiveHistory);
     }
 
     let fullReply = "";
@@ -129,7 +126,10 @@ export async function sendMessage() {
             body: JSON.stringify({
                 message: text,
                 history: effectiveHistory,
-                model
+                model,
+                options: {
+                    num_ctx: 16384
+                }
             }),
             signal: controller.signal,
         });
