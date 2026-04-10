@@ -99,6 +99,9 @@
   color: white;
   font-size: 18px;
   white-space: pre-wrap;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  word-break: break-word;
 }
 
 .bot {
