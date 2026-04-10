@@ -150,8 +150,11 @@ export async function sendMessage() {
                 firstChunk = false;
             }
 
-            botDiv.innerHTML = renderMarkdown(fullReply);
-            autoscroll()
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = renderMarkdown(fullReply);
+            botDiv.innerHTML = tempDiv.innerHTML;
+
+            autoscroll();
         }
 
         if (fullReply.trim()) {

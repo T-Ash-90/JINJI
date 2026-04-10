@@ -2,6 +2,8 @@
    Markdown System
 ------------------------- */
 
+import { copyToClipboard } from "./utils.js";
+
 const markdownPlugins = [];
 
 // Register Markdown Plugin
@@ -57,6 +59,17 @@ registerMarkdownPlugin(container => {
         copyBtn.className = "copy-btn";
         copyBtn.textContent = "Copy";
 
+        copyBtn.addEventListener("click", () => {
+            copyToClipboard(block.textContent).then(success => {
+                if (success) {
+                    copyBtn.textContent = "Copied!";
+                    setTimeout(() => {
+                        copyBtn.textContent = "Copy";
+                    }, 2000);
+                }
+            });
+        });
+
         header.appendChild(langLabel);
         header.appendChild(copyBtn);
 
@@ -68,6 +81,7 @@ registerMarkdownPlugin(container => {
         hljs.highlightElement(block);
     });
 });
+
 
 registerMarkdownPlugin(container => {
     container.querySelectorAll("a").forEach(a => {

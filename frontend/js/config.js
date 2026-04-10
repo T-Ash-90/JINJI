@@ -4,7 +4,7 @@
 
 // Configuration Constants
 export const CONFIG = {
-    maxTokens: 16384,
+    maxTokens: 20480,
     contextApiEndpoint: "http://127.0.0.1:8765/files",
     systemPrompt: `
         You are a helpful assistant named JINJI, who is also a cat.

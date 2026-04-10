@@ -22,7 +22,7 @@ export function autoscroll() {
 
     const distanceFromBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight;
 
-    if (distanceFromBottom < 25) {
+    if (distanceFromBottom < 10) {
         autoScrollEnabled = true;
     }
 
@@ -38,7 +38,7 @@ export function trackScroll() {
 
     chatBox.addEventListener("scroll", () => {
         const distanceFromBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight;
-        if (distanceFromBottom > 25) {
+        if (distanceFromBottom > 10) {
             autoScrollEnabled = false;
         } else {
             autoScrollEnabled = true;
