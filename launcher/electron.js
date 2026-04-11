@@ -4,6 +4,8 @@ const path = require('path');
 const http = require('http');
 
 let backendProcess;
+let splashWindow; // Declare the splash screen window
+let mainWindow;
 
 // -------------------------
 // Start backend using .venv
@@ -12,10 +14,8 @@ function startBackend() {
   let python;
 
   if (process.platform === 'win32') {
-    // Windows
     python = path.join(__dirname, '../.venv', 'Scripts', 'python.exe');
   } else {
-    // macOS / Linux
     python = path.join(__dirname, '../.venv', 'bin', 'python');
   }
 
@@ -40,10 +40,8 @@ function stopBackend() {
   console.log('Stopping backend...');
   try {
     if (process.platform === 'win32') {
-      // Windows: kill process tree using taskkill
       execSync(`taskkill /PID ${backendProcess.pid} /T /F`);
     } else {
-      // Unix/macOS: kill process group
       process.kill(-backendProcess.pid, 'SIGTERM');
     }
   } catch (err) {
@@ -71,10 +69,10 @@ function waitForBackend(url, timeout = 30000, interval = 500) {
 }
 
 // -------------------------
-// Create Electron window
+// Create main window
 // -------------------------
-function createWindow() {
-  const win = new BrowserWindow({
+function createMainWindow() {
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
@@ -83,22 +81,41 @@ function createWindow() {
     icon: path.join(__dirname, '../frontend/assets/images/logo.png'),
   });
 
-  win.loadURL('http://127.0.0.1:8000');
+  mainWindow.loadURL('http://127.0.0.1:8000');
+  mainWindow.on('closed', () => stopBackend());
+}
 
-  win.on('closed', () => stopBackend());
+// -------------------------
+// Create splash window
+// -------------------------
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    width: 400,
+    height: 200,
+    frame: false,
+    alwaysOnTop: true,
+    transparent: true,
+    center: true,
+    icon: path.join(__dirname, '../frontend/assets/images/logo.png'),
+  });
+
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
 }
 
 // -------------------------
 // App lifecycle
 // -------------------------
 app.whenReady().then(async () => {
+  createSplashWindow();
   startBackend();
 
   try {
     console.log('Waiting for backend to be ready...');
     await waitForBackend('http://127.0.0.1:8000');
-    console.log('Backend ready. Launching window...');
-    createWindow();
+    console.log('Backend ready. Launching main window...');
+
+    splashWindow.close();
+    createMainWindow();
   } catch (err) {
     console.error(err);
     stopBackend();
