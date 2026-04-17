@@ -1,3 +1,6 @@
+/* -------------------------
+   Code
+------------------------- */
 .code-wrapper {
   margin-top: var(--space-md);
   border-radius: var(--radius-sm);
@@ -36,7 +39,9 @@
   font-size: 14px;
 }
 
-/* Inline code */
+/* -------------------------
+   Inline Code
+------------------------- */
 code {
   background: #dddddd;
   padding: 2px 4px;

@@ -123,7 +123,6 @@
 /* -------------------------
    Context Info Box
 ------------------------- */
-
 .info-message {
     align-self: flex-end;
     margin-top: 10px;
@@ -143,4 +142,24 @@
     margin-left: 10px;
     color: #555;
     white-space: pre-wrap;
+}
+
+/* -------------------------
+   Input Box
+------------------------- */
+#input {
+  flex: 1;
+  padding: var(--space-md);
+  font-size: 17px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  min-height: 140px;
+}
+
+#input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: var(--shadow-md);
 }

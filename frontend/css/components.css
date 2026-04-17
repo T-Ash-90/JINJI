@@ -1,26 +1,10 @@
-/* Inputs */
-#input {
-  flex: 1;
-  padding: var(--space-md);
-  font-size: 17px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  min-height: 170px;
-}
-
-#input:focus {
-  border-color: var(--color-primary);
-  outline: none;
-  box-shadow: var(--shadow-md);
-}
-
-/* Buttons */
+/* -------------------------
+   Buttons
+------------------------- */
 #send-button,
 #stop-button {
-  padding: 20px;
-  font-size: 15px;
+  padding: 29px;
+  font-size: 17px;
   border: none;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
@@ -43,7 +27,9 @@
   opacity: 0.7;
 }
 
-/* Avatar */
+/* -------------------------
+   Avatar
+------------------------- */
 .avatar {
   width: 60px;
   height: 60px;
