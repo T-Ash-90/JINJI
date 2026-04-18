@@ -4,7 +4,7 @@ const path = require('path');
 const http = require('http');
 
 let backendProcess;
-let splashWindow; // Declare the splash screen window
+let splashWindow;
 let mainWindow;
 
 // -------------------------
