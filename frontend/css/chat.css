@@ -121,6 +121,20 @@
 }
 
 /* -------------------------
+   Thinking logic
+------------------------- */
+@keyframes ellipsis {
+  0%, 20% { content: "."; }
+  40% { content: ".."; }
+  60%, 100% { content: "..."; }
+}
+
+.thinking::after {
+  content: ".";
+  animation: ellipsis 1.5s infinite;
+}
+
+/* -------------------------
    Context Info Box
 ------------------------- */
 .info-message {

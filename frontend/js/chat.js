@@ -100,7 +100,7 @@ export async function sendMessage() {
 
     const botDiv = appendMessage(
         "bot",
-        `<em class="thinking">JINJI is thinking...</em>`
+        `<em class="thinking">JINJI is thinking</em>`
     );
     scrollToBottom()
     autoscroll()
