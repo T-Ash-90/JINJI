@@ -78,7 +78,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, '../frontend/assets/images/logo.png'),
+    icon: path.join(__dirname, '../frontend/assets/images/jinji.png'),
   });
 
   mainWindow.loadURL('http://127.0.0.1:8000');
@@ -96,7 +96,7 @@ function createSplashWindow() {
     alwaysOnTop: true,
     transparent: true,
     center: true,
-    icon: path.join(__dirname, '../frontend/assets/images/logo.png'),
+    icon: path.join(__dirname, '../frontend/assets/images/jinji.png'),
   });
 
   splashWindow.loadFile(path.join(__dirname, 'splash.html'));
