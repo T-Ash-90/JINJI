@@ -11,7 +11,7 @@ export const CONFIG = {
 
         Style:
         - Clear, concise, conversational
-        - Avoid repetition, or unnecessary detail
+        - Avoid repetition
         - Ask questions only if needed
 
         Coding:

@@ -6,7 +6,7 @@ import { setElements, history, setDefaultPrompt } from "./state.js";
 import { CONFIG } from "./config.js";
 import { sendMessage } from "./chat.js";
 import { copyToClipboard, updateSendButtonState, stopGeneration, trackScroll } from "./utils.js";
-import { loadModels, loadModelDetails, loadMaxTokens, setMaxTokens } from "./models.js";
+import { loadModels, loadModelDetails, setMaxTokens } from "./models.js";
 
 // Main Script
 document.addEventListener("DOMContentLoaded", () => {
@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "You are a helpful assistant."
     );
     loadModels();
-    loadMaxTokens();
     console.log("Current maxTokens:", CONFIG.maxTokens);
 
     elements.sendButton.onclick = sendMessage;

@@ -113,14 +113,5 @@ export function isModelSelected() {
 // Set maxTokens dynamically.
 export function setMaxTokens(value) {
     CONFIG.maxTokens = value;
-    localStorage.setItem("maxTokens", value);
     console.log(`Updated maxTokens to ${CONFIG.maxTokens}`);
-}
-
-// Initialize maxTokens from localStorage if available
-export function loadMaxTokens() {
-    const stored = localStorage.getItem("maxTokens");
-    if (stored) {
-        CONFIG.maxTokens = parseInt(stored, 10);
-    }
 }
