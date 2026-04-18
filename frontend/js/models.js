@@ -33,7 +33,7 @@ export async function loadModels() {
                 opt.value = model;
                 opt.textContent = model;
 
-                if (model.endsWith("-cloud")) {
+                if (model.endsWith("cloud")) {
                     cloudGroup.appendChild(opt);
                 } else {
                     localGroup.appendChild(opt);
