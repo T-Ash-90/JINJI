@@ -1,6 +1,6 @@
-# JINJI - An Electron Frontend App for Ollama. Interact with locally hosted and cloud-based LLMs.
+# JINJI - An Frontend App for Ollama.
 
-JINJI is an intuitive, offline-first interface designed to seamlessly interact with locally installed LLMs powered by [Ollama](https://ollama.com/), offering an efficient and private AI experience without the need for an internet connection. You can, of course, also connect to cloud based LLMs via your Ollama account.
+JINJI is an intuitive chat interface designed to seamlessly interact with both cloud-based and locally installed LLMs powered by [Ollama](https://ollama.com/).
 
 ---
 
@@ -19,7 +19,7 @@ JINJI is an intuitive, offline-first interface designed to seamlessly interact w
 ## UI Preview
 
 <p align="center">
-  <img src="frontend/assets/images/ui.png" alt="JINJI UI" width="800"/>
+  <img src="frontend/assets/images/ui.png" alt="JINJI UI" width="1000"/>
 </p>
 
 ---
@@ -34,25 +34,9 @@ JINJI is an intuitive, offline-first interface designed to seamlessly interact w
 
 ---
 
-## Architecture Overview
-
-The application runs entirely on the local machine:
-
-- Electron hosts the app in a desktop window
-- The FastAPI backend handles requests and model communication
-- Ollama serves locally installed LLMs
-- No external APIs or internet connection required
-
-This design ensures:
-- Full privacy
-- Low latency
-- Offline usability
-
----
-
 ## Requirements
 
-- [Ollama](https://ollama.com/) & downloaded LLM models *([phi4-mini:3.8b](https://ollama.com/library/phi4-mini) recommended)*
+- [Ollama](https://ollama.com/) & downloaded LLMs or cloud models *([phi4-mini:3.8b](https://ollama.com/library/phi4-mini) recommended)*
 - Python 3
 - Node.js and npm (for Electron app)
 - Dependencies listed in requirements.txt
@@ -64,7 +48,7 @@ This design ensures:
 1. Clone the repository:
 
 ```bash
-git clone <your-repo-url>
+git clone
 cd <repo-directory>
 ```
 2. Create a virtual Python environment named .venv in the root directory: (required)
@@ -110,25 +94,10 @@ The launcher will:
 - Open the Electron desktop window pointing to the local server (http://localhost:8000).
 - Automatically handle backend startup, waiting for readiness, and shutdown when the window is closed.
 
-2. Add context and system promopt
+2. Add context and system prompt
 
 - Simply update frontend/js/config.js with your preferred system prompt and context API endpoint.
 - Once set up, the "Context" toggle above the chat window allows enabling or disabling fetching context from your API endpoint.
-
-3. You can also create a convenient .desktop launcher icon to launch the application from your desktop environment. Simply create a .desktop file (example below) then save it to your ~/.local/share/applications/ directory.
-
-```bash
-[Desktop Entry]
-Version=1.0
-Name=JINJI
-Comment=Run JINJI - Local LLM Chatbot Interface
-Exec=gnome-terminal -- bash -c "cd /path/to/JINJI/ && export BROWSER=true; npm start; echo 'Ollama and local server terminated.'; echo 'Press enter to close...'; read; exit"
-Icon=/path/to/JINJI/frontend/assets/images/logo.png
-Terminal=false
-Type=Application
-```
-
-Make sure to replace /path/to/JINJI/ with the actual path where JINJI is located.
 
 ---
 
