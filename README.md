@@ -1,4 +1,4 @@
-# JINJI - An Frontend App for Ollama.
+# JINJI - A friendly feline frontend for Ollama LLMs.
 
 JINJI is an intuitive chat interface designed to seamlessly interact with both cloud-based and locally installed LLMs powered by [Ollama](https://ollama.com/).
 
