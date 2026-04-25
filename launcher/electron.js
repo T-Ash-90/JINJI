@@ -73,11 +73,13 @@ function waitForBackend(url, timeout = 30000, interval = 500) {
 // -------------------------
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: false,
-    },
+      width: 1200,
+      height: 800,
+      webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          webSecurity: true
+      },
     icon: path.join(__dirname, '../frontend/assets/images/jinji.png'),
   });
 
