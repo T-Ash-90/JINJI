@@ -1,5 +1,5 @@
 {
-  "name": "jinji-desktop",
+  "name": "JINJI",
   "version": "1.0.0",
   "main": "launcher/electron.js",
   "scripts": {
